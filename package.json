@@ -28,7 +28,7 @@
         "dist/",
         "ios/",
         "android/",
-        "CapacitorSdkZendeskChat.podspec",
+        "CapacitorZendeskClassicSdk.podspec",
         "Package.swift"
     ],
     "scripts": {

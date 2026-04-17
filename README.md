@@ -16,7 +16,7 @@ Capacitor plugin for integrating the **Zendesk Support SDK (Classic/Unified)** i
 ## Installation
 
 ```bash
-npm install git+ssh://git@github.com:dsteinel/capacitor-sdk-zendesk-chat.git
+npm install git+https://github.com/dsteinel/capacitor-zendesk-classic-sdk.git
 npx cap sync
 ```
 
@@ -47,7 +47,7 @@ In Capacitor 8, the plugin is automatically linked via Swift Package Manager (SP
 Initialize the SDK with your Zendesk credentials. You can find these in your Zendesk Admin Center under **Channels > Classic > Mobile SDK**.
 
 ```typescript
-import { ZendeskChat } from 'capacitor-sdk-zendesk-chat';
+import { ZendeskChat } from 'capacitor-zendesk-classic-sdk';
 
 await ZendeskChat.initialize({
   appId: 'YOUR_APP_ID',
@@ -165,7 +165,7 @@ To use this plugin in your own Ionic React project:
 
 1.  **Add the plugin**:
     ```bash
-    npm install git+ssh://git@github.com:dsteinel/capacitor-sdk-zendesk-chat.git
+    npm install git+https://github.com/dsteinel/capacitor-zendesk-classic-sdk.git
     ```
 2.  **Sync native platforms**:
     ```bash
@@ -173,7 +173,7 @@ To use this plugin in your own Ionic React project:
     ```
 3.  **Import and use**:
     ```typescript
-    import { ZendeskChat } from 'capacitor-sdk-zendesk-chat';
+    import { ZendeskChat } from 'capacitor-zendesk-classic-sdk';
     
     // ... inside your component
     const handleSupport = async () => {
