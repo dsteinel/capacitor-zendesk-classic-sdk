@@ -16,7 +16,7 @@ Capacitor plugin for integrating the **Zendesk Support SDK (Classic/Unified)** i
 ## Installation
 
 ```bash
-npm install git+https://github.com/dsteinel/capacitor-zendesk-classic-sdk.git
+npm install capacitor-zendesk-classic-sdk
 npx cap sync
 ```
 
@@ -165,7 +165,7 @@ To use this plugin in your own Ionic React project:
 
 1.  **Add the plugin**:
     ```bash
-    npm install git+https://github.com/dsteinel/capacitor-zendesk-classic-sdk.git
+    npm install capacitor-zendesk-classic-sdk
     ```
 2.  **Sync native platforms**:
     ```bash
