@@ -1,0 +1,66 @@
+/* 
+ * Zendesk Help Center Article Style
+ *
+ * This file is automatically loaded by the Zendesk Support SDK 
+ * to style Help Center articles.
+ */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333333;
+  line-height: 1.6;
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+/* Match the primary color of our app */
+a {
+  color: #8a2be2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #1a1a1a;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+img {
+  max-width: 100%;
+  height: auto !important;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin: 16px 0;
+}
+
+/* Improve lists */
+ul, ol {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+/* Style code blocks */
+pre, code {
+  background-color: #f4f4f4;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+code {
+  padding: 2px 4px;
+  font-size: 0.9em;
+}
+
+pre {
+  padding: 12px;
+  overflow-x: auto;
+}
+
+/* Hide article footer (Author, Date) */
+footer, .article-footer, .article-votes {
+  display: none !important;
+}

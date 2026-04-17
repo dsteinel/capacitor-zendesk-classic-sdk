@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "declaration": true,
+        "experimentalDecorators": true,
+        "lib": [
+            "dom",
+            "esnext"
+        ],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "outDir": "dist/esm",
+        "sourceMap": true,
+        "target": "es2020",
+        "skipLibCheck": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

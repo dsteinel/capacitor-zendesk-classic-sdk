@@ -1,0 +1,42 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+# dist/ <-- Remove this to allow pushing compiled JS
+build/
+.claude/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+.swiftpm/
+
+# Gradle
+.gradle/
+build/
+
+# Capacitor / Mobile
+android/capacitor-zendesk-chat/build/
+android/capacitor-zendesk-chat/.gradle/
+ios/CapacitorZendeskChat/DerivedData/
+ios/CapacitorZendeskChat/build/
+*.xcresult
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+example/dist/
+example/ios/App/public/
+example/android/app/build/
+example/android/.gradle/
+example/ios/DerivedData/
+
+# Credentials
+.env
+*.pem
+*.p12
+google-services.json
+GoogleService-Info.plist

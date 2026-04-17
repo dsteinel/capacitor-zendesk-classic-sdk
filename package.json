@@ -1,0 +1,61 @@
+{
+    "name": "capacitor-zendesk-classic-sdk",
+    "version": "0.1.20",
+    "description": "Zendesk Support SDK plugin for Capacitor",
+    "keywords": [
+        "capacitor",
+        "capacitor-plugin",
+        "zendesk",
+        "support-sdk"
+    ],
+    "homepage": "https://github.com/dsteinel/capacitor-zendesk-classic-sdk",
+    "bugs": {
+        "url": "https://github.com/dsteinel/capacitor-zendesk-classic-sdk/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dsteinel/capacitor-zendesk-classic-sdk.git"
+    },
+    "license": "MIT",
+    "author": "Dimitri Steinel",
+    "type": "commonjs",
+    "main": "dist/esm/index.js",
+    "types": "dist/esm/index.d.ts",
+    "directories": {
+        "example": "example"
+    },
+    "files": [
+        "dist/",
+        "ios/",
+        "android/",
+        "CapacitorSdkZendeskChat.podspec",
+        "Package.swift"
+    ],
+    "scripts": {
+        "build": "npm run clean && tsc",
+        "clean": "rm -rf ./dist",
+        "watch": "tsc --watch",
+        "prepublishOnly": "npm run build",
+        "publish:npm": "npm version patch && npm publish && git push origin --tags"
+    },
+    "dependencies": {
+        "tslib": "^2.8.1"
+    },
+    "devDependencies": {
+        "@capacitor/android": "^8.0.0",
+        "@capacitor/core": "^8.0.0",
+        "@capacitor/ios": "^8.0.0",
+        "typescript": "^5.0.0"
+    },
+    "peerDependencies": {
+        "@capacitor/core": "^8.0.0"
+    },
+    "capacitor": {
+        "ios": {
+            "src": "ios"
+        },
+        "android": {
+            "src": "android"
+        }
+    }
+}

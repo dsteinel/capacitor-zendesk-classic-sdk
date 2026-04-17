@@ -1,0 +1,201 @@
+:root {
+  --support-primary: #006e25;
+  --support-secondary: #632ce5;
+  --support-tertiary: #bc004b;
+  --support-bg: #fcf9f8;
+  --support-surface: #e5e2e1;
+  --support-text: #1c1b1b;
+  --support-text-variant: #3e4a3c;
+}
+
+.supportPage {
+  --background: var(--support-bg);
+}
+
+/* Using global to target the custom elements inside IonHeader and IonToolbar */
+.supportPage :global(ion-toolbar) {
+  --background: var(--support-bg);
+  --color: var(--support-text);
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+.backButton {
+  --color: var(--support-primary);
+}
+
+.mainContainer {
+  max-width: 672px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.heroSection {
+  padding: 32px 0;
+}
+
+.heroHeadline {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--support-text);
+}
+
+.actionColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.actionCard {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 24px;
+  background: var(--support-surface);
+  border-radius: 12px;
+  text-align: left;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
+}
+
+.actionCard:active {
+  transform: scale(0.95);
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24px;
+  flex-shrink: 0;
+}
+
+.primaryBg {
+  background: rgba(0, 110, 37, 0.1);
+  color: var(--support-primary);
+}
+.secondaryBg {
+  background: rgba(99, 44, 229, 0.1);
+  color: var(--support-secondary);
+}
+.grayBg {
+  background: rgba(62, 74, 60, 0.2);
+  color: var(--support-text);
+}
+.tertiaryBg {
+  background: rgba(188, 0, 75, 0.1);
+  color: var(--support-tertiary);
+}
+
+.actionIcon {
+  font-size: 24px;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: var(--support-text);
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  margin: 0;
+  color: var(--support-text-variant);
+  line-height: 1.5;
+}
+
+.contactCtaCard {
+  position: relative;
+  overflow: hidden;
+  background: var(--support-primary);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 32px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.ctaContent {
+  position: relative;
+  z-index: 10;
+}
+
+.ctaTitle {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.ctaDescription {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  margin: 0 0 32px 0;
+  max-width: 280px;
+}
+
+.ctaButton {
+  --background: white;
+  --color: var(--support-primary);
+  --border-radius: 9999px;
+  font-weight: 700;
+  text-transform: none;
+  margin: 0;
+}
+
+.decorativeElement1 {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 256px;
+  height: 256px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  margin-right: -128px;
+  margin-top: -128px;
+  filter: blur(64px);
+}
+
+.decorativeElement2 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 192px;
+  height: 192px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  margin-left: -96px;
+  margin-bottom: -96px;
+  filter: blur(48px);
+}
+
+.customTabBar {
+  --background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(203, 213, 225, 0.15);
+  padding-bottom: 24px;
+  padding-top: 12px;
+}
+
+.customTabButton {
+  --color: #94a3b8;
+  --color-selected: var(--support-primary);
+}
+
+.customTabButton :global(ion-label) {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
