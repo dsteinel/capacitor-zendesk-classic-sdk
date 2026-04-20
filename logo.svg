@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Geometric modern Z — Berlin bauhaus style, sharp angles, optical weight balance -->
+  <path
+    d="M 24 24
+       L 176 24
+       L 176 58
+       L 82 142
+       L 176 142
+       L 176 176
+       L 24 176
+       L 24 142
+       L 118 58
+       L 24 58
+       Z"
+    fill="#000000"
+    stroke="none"
+  />
+</svg>

@@ -16,7 +16,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react'
-import { ZendeskChat } from 'capacitor-sdk-zendesk-chat'
+import { ZendeskChat } from 'capacitor-zendesk-classic-sdk'
 import {
   chatbubbleEllipsesOutline,
   chevronBackOutline,

@@ -1,17 +1,41 @@
-# Capacitor Zendesk Support SDK (Classic)
+<p align="center">
+  <img src="./logo.svg" alt="Logo" height="120" />
+</p>
 
-Capacitor plugin for integrating the **Zendesk Support SDK (Classic/Unified)** into your cross-platform apps.
+<h1 align="center">Capacitor Zendesk Classic SDK</h1>
 
-## Features
+<p align="center">
+  <a href="https://www.npmjs.com/package/capacitor-zendesk-classic-sdk"><img src="https://img.shields.io/npm/v/capacitor-zendesk-classic-sdk" alt="npm version" /></a>
+  <img src="https://img.shields.io/npm/l/capacitor-zendesk-classic-sdk" alt="license" />
+  <img src="https://img.shields.io/badge/capacitor-8-blue" alt="Capacitor 8" />
+  <img src="https://img.shields.io/badge/platforms-iOS%20%7C%20Android%20%7C%20Web-success" alt="platforms" />
+</p>
 
-- **Capacitor 8 Support**: Fully compatible with the latest Capacitor version.
-- **Native UI**: Uses Zendesk's native UI components for iOS and Android.
-- **Support SDK Suite**:
-  - Help Center (Knowledge Base)
-  - Ticket List (User Requests)
-  - Ticket Creation (Contact Us Form)
-  - Unified Messaging interface.
-- **Web Support**: Integrates with the Zendesk Web Widget (Classic).
+<div align="center">
+  <a href="#installation">Installation</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="#usage">Usage</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="#api">API</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/dsteinel/capacitor-zendesk-classic-sdk/issues">Issues</a>
+</div>
+
+---
+
+Capacitor 8 plugin for integrating the **Zendesk Support SDK (Classic/Unified)** into iOS, Android, and Web apps — using Zendesk's native UI components.
+
+**Features:** Help Center · Ticket List · Ticket Creation · Unified Messaging · Push Notifications · Theme & Locale customization
+
+## Requirements
+
+| Platform  | Minimum        |
+|-----------|----------------|
+| iOS       | 15.0           |
+| Android   | SDK 24 (7.0)   |
+| Capacitor | 8              |
+
+---
 
 ## Installation
 
@@ -20,9 +44,9 @@ npm install capacitor-zendesk-classic-sdk
 npx cap sync
 ```
 
-### Android Configuration
+### Android
 
-In your **app's** `build.gradle` or `settings.gradle`, add the Zendesk Maven repository:
+Add the Zendesk Maven repository to `android/build.gradle`:
 
 ```gradle
 allprojects {
@@ -34,150 +58,116 @@ allprojects {
 }
 ```
 
-### iOS Configuration
+### iOS
 
-In Capacitor 8, the plugin is automatically linked via Swift Package Manager (SPM). No additional steps are required beyond `npx cap sync ios`.
+Automatically linked via Swift Package Manager — no extra steps after `npx cap sync`.
 
 ---
 
 ## Usage
 
-### 1. Initialization
+### Initialize
 
-Initialize the SDK with your Zendesk credentials. You can find these in your Zendesk Admin Center under **Channels > Classic > Mobile SDK**.
+Call once on app start. Get credentials from Zendesk Admin Center → **Channels > Classic > Mobile SDK**.
 
 ```typescript
 import { ZendeskChat } from 'capacitor-zendesk-classic-sdk';
 
 await ZendeskChat.initialize({
-  appId: 'YOUR_APP_ID',
-  clientId: 'mobile_sdk_client_YOUR_CLIENT_ID',
-  zendeskUrl: 'https://your_domain.zendesk.com'
+  appId: 'YOUR_APP_ID',           // iOS & Android
+  clientId: 'YOUR_CLIENT_ID',     // iOS & Android
+  zendeskUrl: 'https://your_domain.zendesk.com',
+  webKey: 'YOUR_WEB_KEY',         // Web only (Zendesk Web Widget key)
 });
 ```
 
-### 2. Set Visitor Identity
-
-Identify the user so their tickets are correctly linked.
+### Identify the user
 
 ```typescript
 await ZendeskChat.setVisitorInfo({
-  name: 'John Doe',
-  email: 'john@example.com'
+  name: 'Jane Doe',
+  email: 'jane@example.com',
 });
 ```
 
-### 3. Launch UI Components
+### Open UI components
 
 ```typescript
-// Open the Help Center
-await ZendeskChat.openHelpCenter({});
-
-// Open the Ticket List (My Requests)
-await ZendeskChat.openTicketList();
-
-// Open the Ticket Creation form
-await ZendeskChat.createTicket();
-
-// Open the Unified Messaging/Chat UI
-await ZendeskChat.open({});
+await ZendeskChat.openHelpCenter({});  // Knowledge Base
+await ZendeskChat.open({});            // Unified Messaging / Chat
+await ZendeskChat.openTicketList();    // My Requests
+await ZendeskChat.createTicket();      // New Ticket form
 ```
 
 ---
 
-## Branding & Customization
+## API
 
-You can customize the **Primary Color** and **Language (Locale)** during initialization or dynamically at runtime.
+| Method | Description |
+|--------|-------------|
+| `initialize(options)` | Initialize the SDK with credentials |
+| `setVisitorInfo(options)` | Identify the current user |
+| `open(options)` | Open the Unified Messaging UI |
+| `openHelpCenter(options)` | Open the Help Center |
+| `openTicketList()` | Open the user's ticket list |
+| `createTicket()` | Open the new ticket form |
+| `setTheme(options)` | Set primary color — iOS & Web only |
+| `setLocale(options)` | Set language (BCP 47 tag) |
+| `registerPushToken(options)` | Register device push token |
+| `handleNotification(options)` | Handle incoming push notification |
 
-### 1. During Initialization
+---
+
+## Branding & Localization
 
 ```typescript
+// Set during initialization
 await ZendeskChat.initialize({
-  appId: '...',
-  clientId: '...',
-  zendeskUrl: '...',
-  theme: {
-    primaryColor: '#8a2be2' // Hex color code
-  },
-  locale: 'fr-FR' // BCP 47 language tag (e.g., 'en-US', 'fr-FR')
+  // ...credentials
+  theme: { primaryColor: '#3880ff' }, // hex color
+  locale: 'de-DE',                    // BCP 47 language tag
 });
-```
 
-### 2. Dynamically Update at Runtime
-
-```typescript
-// Update the primary branding color (iOS and Web only)
-await ZendeskChat.setTheme({ primaryColor: '#3880ff' });
-
-// Update the language/locale (iOS, Android, and Web)
+// Or update at runtime
+await ZendeskChat.setTheme({ primaryColor: '#3880ff' }); // iOS & Web only
 await ZendeskChat.setLocale({ locale: 'en-US' });
 ```
 
-> **Note for Android**: Programmatic color customization is limited on the Android Classic/Unified SDK. For Android branding, please customize your app's `styles.xml` to target Zendesk's activity themes.
+> **Android**: `setTheme()` is not supported programmatically. Use `styles.xml` targeting Zendesk's activity themes instead.
 
-### Help Center Article Styling
+### Help Center article CSS
 
-You can customize the appearance of articles in the Help Center by adding a file named **`help_center_article_style.css`** to your native projects. The SDK automatically detects and applies this file to the native WebView.
+Place `help_center_article_style.css` in:
+- **Android**: `src/main/assets/`
+- **iOS**: app root, added to Xcode's **Copy Bundle Resources** build phase
 
-- **Android**: Place the file in `src/main/assets/help_center_article_style.css`.
-- **iOS**: Place the file in your app's root folder and add it to your Xcode project's **"Copy Bundle Resources"** build phase.
+---
+
+## Push Notifications
+
+```typescript
+// Register device token (from your push notification plugin)
+await ZendeskChat.registerPushToken({ token: 'DEVICE_TOKEN' });
+
+// In your notification handler
+const { wasHandled } = await ZendeskChat.handleNotification({ payload });
+if (!wasHandled) {
+  // Handle non-Zendesk notification yourself
+}
+```
 
 ---
 
 ## Example Project
 
-A complete **Ionic React** example project is available in the `/example` directory.
+A working Ionic React example is in [`/example`](./example).
 
-### Where to add your API Keys
-Open `example/src/pages/Home.tsx` and replace the placeholders:
-- `YOUR_APP_ID`
-- `mobile_sdk_client_YOUR_CLIENT_ID`
-- `https://your_domain.zendesk.com`
+1. Open `example/src/pages/Home.tsx` and replace the credential placeholders.
+2. Run:
 
-### How to run the example
-
-1.  **Setup**:
-    ```bash
-    cd example
-    npm install
-    ```
-
-2.  **Web**:
-    ```bash
-    npm run dev
-    ```
-
-3.  **iOS**:
-    ```bash
-    npm run dev:ios
-    ```
-
-4.  **Android**:
-    ```bash
-    npm run dev:android
-    ```
-
----
-
-## Integration in another project
-
-To use this plugin in your own Ionic React project:
-
-1.  **Add the plugin**:
-    ```bash
-    npm install capacitor-zendesk-classic-sdk
-    ```
-2.  **Sync native platforms**:
-    ```bash
-    npx cap sync
-    ```
-3.  **Import and use**:
-    ```typescript
-    import { ZendeskChat } from 'capacitor-zendesk-classic-sdk';
-    
-    // ... inside your component
-    const handleSupport = async () => {
-      await ZendeskChat.initialize({ ... });
-      await ZendeskChat.openHelpCenter({});
-    };
-    ```
+```bash
+cd example && npm install
+npm run start            # Web
+npm run start:ios        # iOS
+npm run start:android    # Android
+```
