@@ -142,12 +142,13 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
         let userInfo = data as [AnyHashable: Any]
 
-        if let instance = SupportSDK.Support.instance {
+        if let zendesk = ZendeskCoreSDK.Zendesk.instance {
             // SDK is initialised — let it identify and handle the notification.
-            let isZendesk = instance.isZendeskPushNotification(userInfo)
+            let pushProvider = SupportSDK.ZDKPushProvider(zendesk: zendesk)
+            let isZendesk = SupportSDK.ZDKPushProvider.isZendeskPushNotification(userInfo)
             if isZendesk {
                 DispatchQueue.main.async {
-                    instance.handlePushNotification(userInfo, in: self.bridge?.viewController)
+                    pushProvider.handlePush(userInfo: userInfo, completion: { _ in })
                 }
             }
             call.resolve(["isZendeskNotification": isZendesk, "wasHandled": isZendesk])
@@ -164,7 +165,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             call.resolve(["count": 0])
             return
         }
-        let requestProvider = SupportSDK.ZDKRequestProvider(zendesk: zendesk)
+        let requestProvider = SupportSDK.ZDKRequestProvider()
         requestProvider.getUpdatesForDevice { updates in
             call.resolve(["count": updates?.totalUpdates ?? 0])
         }
@@ -186,7 +187,9 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
                     data.append(byte)
                 }
             }
-            SupportSDK.Support.instance?.registerDeviceToken(data)
+            if let zendesk = ZendeskCoreSDK.Zendesk.instance {
+                SupportSDK.ZDKPushProvider(zendesk: zendesk).register(deviceToken: data, locale: Locale.current.identifier) { _, _ in }
+            }
             call.resolve()
         }
     }
