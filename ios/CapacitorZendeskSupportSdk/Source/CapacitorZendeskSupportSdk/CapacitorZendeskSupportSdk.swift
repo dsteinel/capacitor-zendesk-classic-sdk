@@ -172,7 +172,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         DispatchQueue.main.async {
             // Convert hex string (from @capacitor/push-notifications) to Data
             if let zendesk = ZendeskCoreSDK.Zendesk.instance {
-                ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk).registerWithDeviceIdentifier(tokenString, locale: Locale.current.identifier) { _, _ in }
+                ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk).register(deviceIdentifier: tokenString, locale: Locale.current.identifier) { _, _ in }
             }
             call.resolve()
         }
