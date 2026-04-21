@@ -16,6 +16,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "ZendeskChat"
 
     private var sdkInitialized = false
+    private var identityEmail: String? = nil
 
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "initialize", returnType: CAPPluginReturnPromise),
@@ -91,8 +92,19 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         DispatchQueue.main.async {
             let name = call.getString("name") ?? ""
             let email = call.getString("email") ?? ""
+
+            // createAnonymous produces a new auth token on every call.
+            // Re-calling setIdentity invalidates the current session, causing
+            // the ticket detail view to fail with "Failed to load comments"
+            // while the list still shows from cache. Skip if identity unchanged.
+            guard email != self.identityEmail else {
+                call.resolve()
+                return
+            }
+
             let identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
             ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
+            self.identityEmail = email
 
             call.resolve()
         }
