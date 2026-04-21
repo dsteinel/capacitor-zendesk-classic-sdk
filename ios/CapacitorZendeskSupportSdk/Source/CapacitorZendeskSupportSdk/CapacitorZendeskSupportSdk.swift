@@ -91,18 +91,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         DispatchQueue.main.async {
             let name = call.getString("name") ?? ""
             let email = call.getString("email") ?? ""
-            let externalId = call.getString("externalId")
-
-            // Using a stable externalId (the app user UUID) ensures the same Zendesk
-            // identity is reused across sessions, so previously created tickets remain
-            // accessible. Without it, every call generates a new anonymous ID and
-            // existing ticket comments become unreachable.
-            let identity: ZendeskCoreSDK.Identity
-            if let id = externalId, !id.isEmpty {
-                identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email, externalId: id)
-            } else {
-                identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
-            }
+            let identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
             ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
 
             call.resolve()
@@ -156,8 +145,6 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             call.reject("Missing data")
             return
         }
-
-        let userInfo = data as [AnyHashable: Any]
 
         if ZendeskCoreSDK.Zendesk.instance != nil {
             let isZendesk = (data["source"] as? String) == "zendesk"
