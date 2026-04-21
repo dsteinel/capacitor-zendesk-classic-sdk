@@ -14,6 +14,9 @@ import MessagingSDK
 public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "ZendeskChat"
     public let jsName = "ZendeskChat"
+
+    private var sdkInitialized = false
+
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "initialize", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setVisitorInfo", returnType: CAPPluginReturnPromise),
@@ -37,9 +40,14 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         }
 
         DispatchQueue.main.async {
-            ZendeskCoreSDK.Zendesk.initialize(appId: appId, clientId: clientId, zendeskUrl: zendeskUrl)
-            SupportSDK.Support.initialize(withZendesk: ZendeskCoreSDK.Zendesk.instance)
-            
+            // Only initialize the SDK once per app session; re-initializing resets
+            // the anonymous identity and breaks access to existing tickets.
+            if !self.sdkInitialized {
+                ZendeskCoreSDK.Zendesk.initialize(appId: appId, clientId: clientId, zendeskUrl: zendeskUrl)
+                SupportSDK.Support.initialize(withZendesk: ZendeskCoreSDK.Zendesk.instance)
+                self.sdkInitialized = true
+            }
+
             if let theme = call.getObject("theme") {
                 self.applyTheme(theme)
             }
@@ -47,7 +55,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             if let locale = call.getString("locale") {
                 SupportSDK.Support.instance?.helpCenterLocaleOverride = locale
             }
-            
+
             call.resolve()
         }
     }
@@ -83,11 +91,20 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         DispatchQueue.main.async {
             let name = call.getString("name") ?? ""
             let email = call.getString("email") ?? ""
+            let externalId = call.getString("externalId")
 
-            // Identity for Support SDK
-            let identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
+            // Using a stable externalId (the app user UUID) ensures the same Zendesk
+            // identity is reused across sessions, so previously created tickets remain
+            // accessible. Without it, every call generates a new anonymous ID and
+            // existing ticket comments become unreachable.
+            let identity: ZendeskCoreSDK.Identity
+            if let id = externalId, !id.isEmpty {
+                identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email, externalId: id)
+            } else {
+                identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
+            }
             ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
-            
+
             call.resolve()
         }
     }
