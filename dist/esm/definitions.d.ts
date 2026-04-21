@@ -6,6 +6,9 @@ export interface VisitorInfo {
     name?: string;
     email?: string;
     phoneNumber?: string;
+    /** Stable identifier (e.g. app user UUID) that keeps the Zendesk identity
+     *  consistent across sessions so existing tickets remain accessible. */
+    externalId?: string;
 }
 export interface ZendeskTheme {
     primaryColor?: string;
