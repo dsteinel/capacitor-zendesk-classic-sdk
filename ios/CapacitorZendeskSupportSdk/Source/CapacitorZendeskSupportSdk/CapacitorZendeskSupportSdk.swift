@@ -142,16 +142,9 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
         let userInfo = data as [AnyHashable: Any]
 
-        if let zendesk = ZendeskCoreSDK.Zendesk.instance {
-            // SDK is initialised — let it identify and handle the notification.
-            let pushProvider = ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk)
-            let isZendesk = ZendeskCoreSDK.ZDKPushProvider.isZendeskPushNotification(userInfo)
-            if isZendesk {
-                DispatchQueue.main.async {
-                    pushProvider.handlePush(userInfo: userInfo, completion: { _ in })
-                }
-            }
-            call.resolve(["isZendeskNotification": isZendesk, "wasHandled": isZendesk])
+        if ZendeskCoreSDK.Zendesk.instance != nil {
+            let isZendesk = (data["source"] as? String) == "zendesk"
+            call.resolve(["isZendeskNotification": isZendesk, "wasHandled": false])
         } else {
             // SDK not yet initialised (cold start). Detect by payload key only so
             // the caller can navigate to the Support page where init will happen.
@@ -178,17 +171,8 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         }
         DispatchQueue.main.async {
             // Convert hex string (from @capacitor/push-notifications) to Data
-            var data = Data()
-            var hex = tokenString
-            while hex.count >= 2 {
-                let byteString = String(hex.prefix(2))
-                hex = String(hex.dropFirst(2))
-                if let byte = UInt8(byteString, radix: 16) {
-                    data.append(byte)
-                }
-            }
             if let zendesk = ZendeskCoreSDK.Zendesk.instance {
-                ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk).register(deviceToken: data, locale: Locale.current.identifier) { _, _ in }
+                ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk).registerWithDeviceIdentifier(tokenString, locale: Locale.current.identifier) { _, _ in }
             }
             call.resolve()
         }
