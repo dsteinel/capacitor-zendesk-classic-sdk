@@ -144,8 +144,8 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
         if let zendesk = ZendeskCoreSDK.Zendesk.instance {
             // SDK is initialised — let it identify and handle the notification.
-            let pushProvider = SupportSDK.ZDKPushProvider(zendesk: zendesk)
-            let isZendesk = SupportSDK.ZDKPushProvider.isZendeskPushNotification(userInfo)
+            let pushProvider = ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk)
+            let isZendesk = ZendeskCoreSDK.ZDKPushProvider.isZendeskPushNotification(userInfo)
             if isZendesk {
                 DispatchQueue.main.async {
                     pushProvider.handlePush(userInfo: userInfo, completion: { _ in })
@@ -188,7 +188,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
                 }
             }
             if let zendesk = ZendeskCoreSDK.Zendesk.instance {
-                SupportSDK.ZDKPushProvider(zendesk: zendesk).register(deviceToken: data, locale: Locale.current.identifier) { _, _ in }
+                ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk).register(deviceToken: data, locale: Locale.current.identifier) { _, _ in }
             }
             call.resolve()
         }
