@@ -32,7 +32,7 @@ export interface ZendeskChatPlugin {
   setLocale(options: { locale: string }): Promise<void>;
   open(config: ChatConfig): Promise<void>; // Opens Messaging/Chat
   openHelpCenter(config: ChatConfig): Promise<void>;
-  openTicketList(): Promise<void>;
+  openTicketList(options?: { primaryColor?: string }): Promise<void>;
   createTicket(): Promise<void>;
   registerPushToken(options: { token: string }): Promise<void>;
   /**

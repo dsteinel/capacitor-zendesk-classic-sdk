@@ -23,16 +23,39 @@ build/
 # Capacitor / Mobile
 android/capacitor-zendesk-chat/build/
 android/capacitor-zendesk-chat/.gradle/
-ios/CapacitorZendeskChat/DerivedData/
-ios/CapacitorZendeskChat/build/
-*.xcresult
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
 example/dist/
 example/ios/App/public/
 example/android/app/build/
 example/android/.gradle/
-example/ios/DerivedData/
+
+# Xcode — build artifacts
+DerivedData/
+build/
+*.xcresult
+
+# Xcode — user-specific settings
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+xcuserdata/
+
+# Xcode — previews & playgrounds
+*.xcscmblueprint
+*.xccheckout
+playground.xcworkspace
+
+# Swift Package Manager cache
+.build/
+*.resolved
+
+# CocoaPods build output (keep Podfile and Podfile.lock)
+Pods/
+
+# Fastlane / code signing
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
 
 # Credentials
 .env

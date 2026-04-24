@@ -37,18 +37,19 @@ const Home: React.FC = () => {
     const initialize = async () => {
       try {
         await ZendeskChat.initialize({
-          webKey: 'YOUR_WEB_KEY', // Added for Web/Desktop support
-          appId: 'YOUR_APP_ID',
-          clientId: 'YOUR_CLIENT_ID',
-          zendeskUrl: 'https://YOUR_SUBDOMAIN.zendesk.com',
+          webKey: import.meta.env.VITE_ZENDESK_WEB_KEY,
+          appId: import.meta.env.VITE_ZENDESK_APP_ID,
+          clientId: import.meta.env.VITE_ZENDESK_CLIENT_ID,
+          zendeskUrl: import.meta.env.VITE_ZENDESK_URL,
           theme: {
-            primaryColor: '#006e25',
+            primaryColor: import.meta.env.VITE_ZENDESK_PRIMARY_COLOR,
           },
         })
 
         await ZendeskChat.setVisitorInfo({
           name: 'John Doe',
           email: 'john@example.com',
+          externalId: 'john-doe-example-uuid',
         })
         setInitialized(true)
       } catch (e) {

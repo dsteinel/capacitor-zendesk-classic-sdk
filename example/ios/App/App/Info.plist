@@ -47,5 +47,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used to attach photos to support tickets.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Used to take photos to attach to support tickets.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Used to record video to attach to support tickets.</string>
 </dict>
 </plist>

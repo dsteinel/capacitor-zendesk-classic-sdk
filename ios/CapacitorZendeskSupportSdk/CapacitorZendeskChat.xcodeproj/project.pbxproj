@@ -8,21 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		18DD3EC6FD926A19540AA106 /* Pods_CapacitorZendeskChat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50F94771610D9566B3ED5847 /* Pods_CapacitorZendeskChat.framework */; };
-		FE1C41BD21861FFC00F8236E /* CapacitorZendeskChat.h in Headers */ = {isa = PBXBuildFile; fileRef = FE1C41BB21861FFC00F8236E /* CapacitorZendeskChat.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		FE9AC5F721862144009471A9 /* CapacitorZendeskChat.m in Sources */ = {isa = PBXBuildFile; fileRef = FE9AC5F421862144009471A9 /* CapacitorZendeskChat.m */; };
-		FE9AC5F821862144009471A9 /* CapacitorZendeskChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9AC5F521862144009471A9 /* CapacitorZendeskChat.swift */; };
-		/* End PBXBuildFile section */
+		FE1C41BD21861FFC00F8236E /* CapacitorZendeskSupportSdk.h in Headers */ = {isa = PBXBuildFile; fileRef = FE1C41BB21861FFC00F8236E /* CapacitorZendeskSupportSdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FE9AC5F721862144009471A9 /* CapacitorZendeskSupportSdk.m in Sources */ = {isa = PBXBuildFile; fileRef = FE9AC5F421862144009471A9 /* CapacitorZendeskSupportSdk.m */; };
+		FE9AC5F821862144009471A9 /* CapacitorZendeskSupportSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9AC5F521862144009471A9 /* CapacitorZendeskSupportSdk.swift */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		50F94771610D9566B3ED5847 /* Pods_CapacitorZendeskChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CapacitorZendeskChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		80D48D1199882E584EB5E775 /* Pods-CapacitorZendeskChat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CapacitorZendeskChat.release.xcconfig"; path = "Pods/Target Support Files/Pods-CapacitorZendeskChat/Pods-CapacitorZendeskChat.release.xcconfig"; sourceTree = "<group>"; };
 		E93EEABDBC3E0F5423DF22EB /* Pods-CapacitorZendeskChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CapacitorZendeskChat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CapacitorZendeskChat/Pods-CapacitorZendeskChat.debug.xcconfig"; sourceTree = "<group>"; };
 		FE1C41B821861FFC00F8236E /* CapacitorZendeskChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CapacitorZendeskChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FE1C41BB21861FFC00F8236E /* CapacitorZendeskChat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CapacitorZendeskChat.h; sourceTree = "<group>"; };
+		FE1C41BB21861FFC00F8236E /* CapacitorZendeskSupportSdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CapacitorZendeskSupportSdk.h; path = CapacitorZendeskSupportSdkObjc/CapacitorZendeskSupportSdk.h; sourceTree = "<group>"; };
 		FE1C41BC21861FFC00F8236E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		FE9AC5F421862144009471A9 /* CapacitorZendeskChat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CapacitorZendeskChat.m; sourceTree = "<group>"; };
-		FE9AC5F521862144009471A9 /* CapacitorZendeskChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CapacitorZendeskChat.swift; sourceTree = "<group>"; };
-		/* End PBXFileReference section */
+		FE9AC5F421862144009471A9 /* CapacitorZendeskSupportSdk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CapacitorZendeskSupportSdk.m; path = CapacitorZendeskSupportSdkObjc/CapacitorZendeskSupportSdk.m; sourceTree = "<group>"; };
+		FE9AC5F521862144009471A9 /* CapacitorZendeskSupportSdk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CapacitorZendeskSupportSdk.swift; path = CapacitorZendeskSupportSdk/CapacitorZendeskSupportSdk.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		FE1C41B521861FFC00F8236E /* Frameworks */ = {
@@ -74,9 +74,9 @@
 		FE1C41BA21861FFC00F8236E /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				FE9AC5F421862144009471A9 /* CapacitorZendeskChat.m */,
-				FE9AC5F521862144009471A9 /* CapacitorZendeskChat.swift */,
-				FE1C41BB21861FFC00F8236E /* CapacitorZendeskChat.h */,
+				FE9AC5F421862144009471A9 /* CapacitorZendeskSupportSdk.m */,
+				FE9AC5F521862144009471A9 /* CapacitorZendeskSupportSdk.swift */,
+				FE1C41BB21861FFC00F8236E /* CapacitorZendeskSupportSdk.h */,
 				FE1C41BC21861FFC00F8236E /* Info.plist */,
 			);
 			path = Source;
@@ -89,7 +89,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE1C41BD21861FFC00F8236E /* CapacitorZendeskChat.h in Headers */,
+				FE1C41BD21861FFC00F8236E /* CapacitorZendeskSupportSdk.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,7 +123,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1000;
-				ORGANIZATIONNAME = "Sencrop";
+				ORGANIZATIONNAME = Sencrop;
 				TargetAttributes = {
 					FE1C41B721861FFC00F8236E = {
 						CreatedOnToolsVersion = 10.0;
@@ -183,22 +183,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-CapacitorZendeskChat/Pods-CapacitorZendeskChat-resources.sh",
-				"${PODS_ROOT}/ZDCChat/ZDCChatStrings.bundle",
-				"${PODS_ROOT}/ZDCChat/ZDCChat.bundle",
+				"${PODS_ROOT}/Target Support Files/Pods-CapacitorZendeskChat/Pods-CapacitorZendeskChat-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ZDCChatStrings.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ZDCChat.bundle",
+				"${PODS_ROOT}/Target Support Files/Pods-CapacitorZendeskChat/Pods-CapacitorZendeskChat-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CapacitorZendeskChat/Pods-CapacitorZendeskChat-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CapacitorZendeskChat/Pods-CapacitorZendeskChat-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -208,8 +201,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE9AC5F821862144009471A9 /* CapacitorZendeskChat.swift in Sources */,
-				FE9AC5F721862144009471A9 /* CapacitorZendeskChat.m in Sources */,
+				FE9AC5F821862144009471A9 /* CapacitorZendeskSupportSdk.swift in Sources */,
+				FE9AC5F721862144009471A9 /* CapacitorZendeskSupportSdk.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,7 +261,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -326,7 +319,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -351,13 +344,13 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sencrop.capacitor.zendeskchat.CapacitorZendeskChat";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sencrop.capacitor.zendeskchat.CapacitorZendeskChat;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -379,13 +372,13 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sencrop.capacitor.zendeskchat";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sencrop.capacitor.zendeskchat;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.2;

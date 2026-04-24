@@ -1,9 +1,10 @@
 import Foundation
+import SwiftUI
 import Capacitor
 import ZendeskCoreSDK
 import SupportSDK
+import SupportProvidersSDK
 import CommonUISDK
-import ChatSDK
 import MessagingSDK
 
 /**
@@ -17,6 +18,8 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
     private var sdkInitialized = false
     private var identityEmail: String? = nil
+    private var identityName: String? = nil
+    private var primaryColor: Color = Color(red: 0, green: 0.43, blue: 0.145)
 
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "initialize", returnType: CAPPluginReturnPromise),
@@ -81,10 +84,17 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
+    private func reapplyIdentity() {
+        guard let name = identityName, let email = identityEmail else { return }
+        let identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
+        ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
+    }
+
     private func applyTheme(_ theme: [String: Any]) {
         if let primaryColorHex = theme["primaryColor"] as? String,
-           let color = UIColor(hex: primaryColorHex) {
-            CommonUISDK.CommonTheme.currentTheme.primaryColor = color
+           let uiColor = UIColor(hex: primaryColorHex) {
+            CommonUISDK.CommonTheme.currentTheme.primaryColor = uiColor
+            primaryColor = Color(uiColor)
         }
     }
 
@@ -105,7 +115,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             let identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
             ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
             self.identityEmail = email
-
+            self.identityName = name
             call.resolve()
         }
     }
@@ -136,15 +146,27 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
     @objc func openTicketList(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
-            let viewController = SupportSDK.RequestUi.buildRequestList(with: [])
-            let navigationController = UINavigationController(rootViewController: viewController)
-            self.bridge?.viewController?.present(navigationController, animated: true, completion: nil)
+            self.reapplyIdentity()
+            var color = self.primaryColor
+            if let hex = call.getString("primaryColor"),
+               let uiColor = UIColor(hex: hex) {
+                color = Color(uiColor)
+            }
+            var hostingVC: UIViewController?
+            let view = TicketListView(primaryColor: color, onDismiss: {
+                hostingVC?.dismiss(animated: true)
+            })
+            let vc = UIHostingController(rootView: view)
+            hostingVC = vc
+            vc.modalPresentationStyle = .fullScreen
+            self.bridge?.viewController?.present(vc, animated: true)
             call.resolve()
         }
     }
 
     @objc func createTicket(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
+            self.reapplyIdentity()
             let viewController = SupportSDK.RequestUi.buildRequestUi(with: [])
             let navigationController = UINavigationController(rootViewController: viewController)
             self.bridge?.viewController?.present(navigationController, animated: true, completion: nil)

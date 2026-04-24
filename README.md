@@ -31,7 +31,7 @@ Capacitor 8 plugin for integrating the **Zendesk Support SDK (Classic/Unified)**
 
 | Platform  | Minimum        |
 |-----------|----------------|
-| iOS       | 15.0           |
+| iOS       | 17.0           |
 | Android   | SDK 24 (7.0)   |
 | Capacitor | 8              |
 
@@ -99,6 +99,16 @@ await ZendeskChat.openTicketList();    // My Requests
 await ZendeskChat.createTicket();      // New Ticket form
 ```
 
+#### Per-call color override (iOS only)
+
+`openTicketList` accepts an optional `primaryColor` that overrides the color set via `initialize` or `setTheme` for that screen:
+
+```typescript
+await ZendeskChat.openTicketList({ primaryColor: '#006e25' });
+```
+
+If omitted the color from `initialize({ theme: { primaryColor } })` is used as the fallback.
+
 ---
 
 ## API
@@ -109,9 +119,9 @@ await ZendeskChat.createTicket();      // New Ticket form
 | `setVisitorInfo(options)` | Identify the current user |
 | `open(options)` | Open the Unified Messaging UI |
 | `openHelpCenter(options)` | Open the Help Center |
-| `openTicketList()` | Open the user's ticket list |
+| `openTicketList(options?)` | Open the user's ticket list (iOS: optional `primaryColor` override) |
 | `createTicket()` | Open the new ticket form |
-| `setTheme(options)` | Set primary color — iOS & Web only |
+| `setTheme(options)` | Set primary color — iOS & Web only (Android: use `styles.xml`) |
 | `setLocale(options)` | Set language (BCP 47 tag) |
 | `registerPushToken(options)` | Register device push token |
 | `handleNotification(options)` | Handle incoming push notification |

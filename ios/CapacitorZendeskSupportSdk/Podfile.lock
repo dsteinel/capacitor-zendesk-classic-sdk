@@ -14,24 +14,55 @@ PODS:
   - ZDCChat/Localization (1.4.0)
   - ZDCChat/UI (1.4.0):
     - ZDCChat/API
+  - ZendeskCommonUISDK (9.3.0)
+  - ZendeskCoreSDK (5.0.5)
+  - ZendeskMessagingAPISDK (6.0.2):
+    - ZendeskSDKConfigurationsSDK (~> 4.0.1)
+  - ZendeskMessagingSDK (6.3.0):
+    - ZendeskCommonUISDK (~> 9.3.0)
+    - ZendeskMessagingAPISDK (~> 6.0.2)
+  - ZendeskSDKConfigurationsSDK (4.0.1)
+  - ZendeskSupportProvidersSDK (9.0.0):
+    - ZendeskCoreSDK (~> 5.0.5)
+  - ZendeskSupportSDK (9.3.0):
+    - ZendeskMessagingSDK (~> 6.3.0)
+    - ZendeskSupportProvidersSDK (~> 9.0.0)
 
 DEPENDENCIES:
   - Capacitor
   - ZDCChat (~> 1.4.0)
+  - ZendeskCommonUISDK
+  - ZendeskCoreSDK
+  - ZendeskMessagingSDK
+  - ZendeskSupportSDK
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - Capacitor
     - CapacitorCordova
     - GCDWebServer
     - ZDCChat
+    - ZendeskCommonUISDK
+    - ZendeskCoreSDK
+    - ZendeskMessagingAPISDK
+    - ZendeskMessagingSDK
+    - ZendeskSDKConfigurationsSDK
+    - ZendeskSupportProvidersSDK
+    - ZendeskSupportSDK
 
 SPEC CHECKSUMS:
   Capacitor: b37060b0b2685257bedbc69e49a54a74ef30fb9a
   CapacitorCordova: a923a32bc7ad5f1f3d69664ca86ff69580343ed3
   GCDWebServer: ead88cd14596dd4eae4f5830b8877c87c8728990
   ZDCChat: 1def9764647bb81cf71aebd9df38aa4024c52d12
+  ZendeskCommonUISDK: 89d51880b7431b310a51839f09378e82d5bfcf4d
+  ZendeskCoreSDK: c542b3f82abc3ee52e1291c6fb3436515e098806
+  ZendeskMessagingAPISDK: 5b3a9d16f2f4d8b3c07b4ca0451a7cf9bfd8107d
+  ZendeskMessagingSDK: 56e4a1cb7ee67e94c31a85a464d872b447f358a3
+  ZendeskSDKConfigurationsSDK: d0b28eeb9c3d88191cfd2c7f246b2522c8c357f4
+  ZendeskSupportProvidersSDK: 281acf2bb731d2a67f913cfe653ed0da9f5b2f42
+  ZendeskSupportSDK: ae9d470360e00f2e0694cad4b118a80af018e8ef
 
-PODFILE CHECKSUM: 779c4c7da73f5ca1f483174ebc45f9dddd9a3166
+PODFILE CHECKSUM: 8dbaac4fdc0d7f8b0eb91f4851097a7e7e6aff46
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.16.2

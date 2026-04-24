@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.bsdex.capacitor-zendesk-classic-sdk.example',
   appName: 'example-app',
   webDir: 'dist',
   server: {
