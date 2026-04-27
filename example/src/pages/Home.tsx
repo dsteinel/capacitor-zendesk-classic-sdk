@@ -4,15 +4,11 @@ import {
   IonButtons,
   IonCol,
   IonContent,
-  IonFooter,
   IonGrid,
   IonHeader,
   IonIcon,
-  IonLabel,
   IonPage,
   IonRow,
-  IonTabBar,
-  IonTabButton,
   IonTitle,
   IonToolbar,
 } from '@ionic/react'
@@ -23,9 +19,6 @@ import {
   createOutline,
   documentTextOutline,
   receiptOutline,
-  timeOutline,
-  trendingUpOutline,
-  walletOutline,
 } from 'ionicons/icons'
 import React, { useEffect, useState } from 'react'
 import styles from './Home.module.css'
@@ -206,24 +199,6 @@ const Home: React.FC = () => {
         </div>
       </IonContent>
 
-      <IonFooter className='ion-no-border'>
-        <IonTabBar slot='bottom' className={styles.customTabBar}>
-          <IonTabButton tab='invest' className={styles.customTabButton}>
-            <IonIcon icon={trendingUpOutline} />
-            <IonLabel>Investieren</IonLabel>
-          </IonTabButton>
-
-          <IonTabButton tab='wallet' className={styles.customTabButton}>
-            <IonIcon icon={walletOutline} />
-            <IonLabel>Wallet</IonLabel>
-          </IonTabButton>
-
-          <IonTabButton tab='history' className={styles.customTabButton}>
-            <IonIcon icon={timeOutline} />
-            <IonLabel>Historie</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonFooter>
     </IonPage>
   )
 }

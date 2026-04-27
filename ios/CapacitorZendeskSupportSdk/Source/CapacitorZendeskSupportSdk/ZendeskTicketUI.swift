@@ -13,6 +13,7 @@ struct TicketListView: View {
     let onDismiss: () -> Void
 
     @SwiftUI.State private var tickets: [SupportProvidersSDK.ZDKRequest] = []
+    @SwiftUI.State private var requestUpdates: RequestUpdates? = nil
     @SwiftUI.State private var isLoading = true
     @SwiftUI.State private var errorMessage: String? = nil
     @SwiftUI.State private var selectedTicket: SupportProvidersSDK.ZDKRequest? = nil
@@ -50,8 +51,15 @@ struct TicketListView: View {
                     .background(Color(.systemGroupedBackground))
                 } else {
                     List(tickets, id: \.requestId) { ticket in
-                        Button(action: { selectedTicket = ticket }) {
-                            TicketRow(ticket: ticket, primaryColor: primaryColor)
+                        Button(action: {
+                            markAsRead(ticket)
+                            selectedTicket = ticket
+                        }) {
+                            TicketRow(
+                                ticket: ticket,
+                                primaryColor: primaryColor,
+                                hasUnread: hasUnread(ticket)
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -74,15 +82,43 @@ struct TicketListView: View {
         .onAppear(perform: loadTickets)
     }
 
+    private func hasUnread(_ ticket: ZDKRequest) -> Bool {
+        guard let updates = requestUpdates else { return false }
+        return updates.isRequestUnread(ticket.requestId)
+    }
+
+
+    private func markAsRead(_ ticket: ZDKRequest) {
+        let count = ticket.commentCount.intValue
+        SupportSDK.ZDKRequestProvider().markRequestAsRead(ticket.requestId, withCommentCount: count)
+    }
+
     private func loadTickets() {
-        SupportSDK.ZDKRequestProvider().getAllRequests { result, error in
-            DispatchQueue.main.async {
-                isLoading = false
-                if let result = result as? SupportProvidersSDK.ZDKRequestsWithCommentingAgents {
-                    tickets = result.requests
-                } else {
-                    errorMessage = "Could not load requests"
-                }
+        let group = DispatchGroup()
+        var fetchedTickets: [ZDKRequest] = []
+        var fetchedUpdates: RequestUpdates?
+
+        group.enter()
+        SupportSDK.ZDKRequestProvider().getAllRequests { result, _ in
+            if let result = result as? SupportProvidersSDK.ZDKRequestsWithCommentingAgents {
+                fetchedTickets = result.requests
+            }
+            group.leave()
+        }
+
+        group.enter()
+        SupportSDK.ZDKRequestProvider().getUpdatesForDevice { updates in
+            fetchedUpdates = updates
+            group.leave()
+        }
+
+        group.notify(queue: .main) {
+            isLoading = false
+            if fetchedTickets.isEmpty && fetchedUpdates == nil {
+                errorMessage = "Could not load requests"
+            } else {
+                tickets = fetchedTickets
+                requestUpdates = fetchedUpdates
             }
         }
     }
@@ -91,29 +127,54 @@ struct TicketListView: View {
 struct TicketRow: View {
     let ticket: SupportProvidersSDK.ZDKRequest
     let primaryColor: Color
+    let hasUnread: Bool
+
+    private var title: String {
+        // If no agent reply yet, use the subject as title
+        if let subject = ticket.subject, !subject.isEmpty {
+            let hasAgentReply = ticket.commentCount.intValue > 1
+            if !hasAgentReply {
+                return subject
+            }
+        }
+        return ticket.subject ?? ticket.requestDescription ?? "Support request"
+    }
+
+    private var formattedDate: String {
+        let f = DateFormatter()
+        f.dateFormat = "dd.MM.yy HH:mm"
+        return f.string(from: ticket.updateAt)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top, spacing: 8) {
-                Text(ticket.subject ?? ticket.requestDescription ?? "Support request")
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                Spacer()
+        HStack(spacing: 12) {
+            // Unread indicator dot
+            Circle()
+                .fill(hasUnread ? primaryColor : Color.clear)
+                .frame(width: 8, height: 8)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .top) {
+                    Text(title)
+                        .font(.body)
+                        .fontWeight(hasUnread ? .semibold : .regular)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(formattedDate)
+                        .font(.caption)
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
+                if let last = ticket.lastComment, let body = last.body, !body.isEmpty {
+                    Text(body)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
                 StatusBadge(status: ticket.status ?? "open", primaryColor: primaryColor)
             }
-            if let last = ticket.lastComment, let body = last.body, !body.isEmpty {
-                Text(body)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-            }
-            Text(ticket.updateAt, style: .relative)
-                .font(.footnote)
-                .foregroundColor(Color(.tertiaryLabel))
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
     }
 }
 
@@ -131,10 +192,10 @@ struct StatusBadge: View {
 
     var body: some View {
         Text(status.capitalized)
-            .font(.caption)
+            .font(.caption2)
             .fontWeight(.medium)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
             .background(color.opacity(0.12))
             .foregroundColor(color)
             .clipShape(Capsule())
@@ -309,6 +370,13 @@ struct CommentRow: View {
         return String(name.prefix(2)).uppercased()
     }
 
+    private var formattedDate: String {
+        guard let date = comment?.createdAt else { return "" }
+        let f = DateFormatter()
+        f.dateFormat = "dd.MM.yy HH:mm"
+        return f.string(from: date)
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {
@@ -327,11 +395,9 @@ struct CommentRow: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                     Spacer()
-                    if let date = comment?.createdAt {
-                        Text(date, style: .time)
-                            .font(.caption)
-                            .foregroundColor(Color(.tertiaryLabel))
-                    }
+                    Text(formattedDate)
+                        .font(.caption)
+                        .foregroundColor(Color(.tertiaryLabel))
                 }
                 if let body = comment?.body, !body.isEmpty {
                     Text(body)
@@ -414,7 +480,6 @@ struct ReplyBar: View {
     let primaryColor: Color
     let onSend: () -> Void
 
-    @SwiftUI.State private var showAttachmentPicker = false
     @SwiftUI.State private var showPhotoPicker = false
     @SwiftUI.State private var showCamera = false
     @SwiftUI.State private var showFilePicker = false
@@ -433,40 +498,25 @@ struct ReplyBar: View {
             }
 
             HStack(alignment: .bottom, spacing: 8) {
-                Button(action: { showAttachmentPicker = true }) {
-                    Image(systemName: "paperclip")
-                        .font(.system(size: 18))
-                        .foregroundColor(.secondary)
-                }
-                .frame(width: 32, height: 32)
-                .confirmationDialog("Add attachment", isPresented: $showAttachmentPicker) {
-                    Button("Photo Library") { showPhotoPicker = true }
+                // Paperclip with native iOS context menu
+                Menu {
+                    Button(action: { showPhotoPicker = true }) {
+                        Label("Photo Library", systemImage: "photo.on.rectangle")
+                    }
                     if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                        Button("Camera") { showCamera = true }
+                        Button(action: { showCamera = true }) {
+                            Label("Camera", systemImage: "camera")
+                        }
                     }
-                    Button("File") { showFilePicker = true }
-                    Button("Cancel", role: .cancel) {}
-                }
-                .photosPicker(isPresented: $showPhotoPicker, selection: $photoPickerItem, matching: .any(of: [.images, .videos]))
-                .onChange(of: photoPickerItem) {
-                    guard let item = photoPickerItem else { return }
-                    loadPhotoPickerItem(item)
-                    photoPickerItem = nil
-                }
-                .sheet(isPresented: $showCamera) {
-                    CameraPickerView { image in
-                        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
-                        let filename = "photo_\(Int(Date().timeIntervalSince1970)).jpg"
-                        let thumb = Image(uiImage: image)
-                        pendingAttachments.append(PendingAttachment(filename: filename, mimeType: "image/jpeg", data: data, thumbnail: thumb))
+                    Button(action: { showFilePicker = true }) {
+                        Label("File", systemImage: "doc")
                     }
-                }
-                .sheet(isPresented: $showFilePicker) {
-                    FilePickerView { url in
-                        guard let data = try? Data(contentsOf: url) else { return }
-                        let mime = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType ?? "application/octet-stream"
-                        pendingAttachments.append(PendingAttachment(filename: url.lastPathComponent, mimeType: mime, data: data, thumbnail: nil))
-                    }
+                } label: {
+                    Image(systemName: "paperclip")
+                        .font(.system(size: 16, weight: .light))
+                        .rotationEffect(.degrees(30))
+                        .foregroundColor(.secondary)
+                        .frame(width: 32, height: 32)
                 }
 
                 TextField("Add a reply…", text: $text, axis: .vertical)
@@ -494,6 +544,26 @@ struct ReplyBar: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
+        }
+        .photosPicker(isPresented: $showPhotoPicker, selection: $photoPickerItem, matching: .any(of: [.images, .videos]))
+        .onChange(of: photoPickerItem) {
+            guard let item = photoPickerItem else { return }
+            loadPhotoPickerItem(item)
+            photoPickerItem = nil
+        }
+        .sheet(isPresented: $showCamera) {
+            CameraPickerView { image in
+                guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+                let filename = "photo_\(Int(Date().timeIntervalSince1970)).jpg"
+                pendingAttachments.append(PendingAttachment(filename: filename, mimeType: "image/jpeg", data: data, thumbnail: Image(uiImage: image)))
+            }
+        }
+        .sheet(isPresented: $showFilePicker) {
+            FilePickerView { url in
+                guard let data = try? Data(contentsOf: url) else { return }
+                let mime = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType ?? "application/octet-stream"
+                pendingAttachments.append(PendingAttachment(filename: url.lastPathComponent, mimeType: mime, data: data, thumbnail: nil))
+            }
         }
         .background(Color(.systemBackground))
     }
@@ -575,7 +645,7 @@ struct FilePickerView: UIViewControllerRepresentable {
     }
 }
 
-// MARK: - Attachment preview strip above input
+// MARK: - Attachment preview strip
 
 struct AttachmentPreviewStrip: View {
     @Binding var attachments: [PendingAttachment]
