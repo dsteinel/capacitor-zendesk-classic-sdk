@@ -25,25 +25,28 @@ import styles from './Home.module.css'
 
 const Home: React.FC = () => {
   const [initialized, setInitialized] = useState(false)
+  const [liveChatEnabled, setLiveChatEnabled] = useState(false)
 
   useEffect(() => {
     const initialize = async () => {
       try {
         await ZendeskChat.initialize({
-          webKey: import.meta.env.VITE_ZENDESK_WEB_KEY,
           appId: import.meta.env.VITE_ZENDESK_APP_ID,
           clientId: import.meta.env.VITE_ZENDESK_CLIENT_ID,
           zendeskUrl: import.meta.env.VITE_ZENDESK_URL,
           theme: {
             primaryColor: import.meta.env.VITE_ZENDESK_PRIMARY_COLOR,
           },
+          enableLiveChat: false,
         })
 
         await ZendeskChat.setVisitorInfo({
           name: 'John Doe',
           email: 'john@example.com',
-          externalId: 'john-doe-example-uuid',
         })
+
+        const { enabled } = await ZendeskChat.isLiveChatEnabled()
+        setLiveChatEnabled(enabled)
         setInitialized(true)
       } catch (e) {
         console.error('Error initializing Zendesk', e)
@@ -114,27 +117,29 @@ const Home: React.FC = () => {
                 </button>
               </IonCol>
 
-              <IonCol size='12'>
-                <button
-                  className={`${styles.actionCard} group`}
-                  onClick={openMessaging}
-                >
-                  <div
-                    className={`${styles.iconWrapper} ${styles.secondaryBg}`}
+              {liveChatEnabled && (
+                <IonCol size='12'>
+                  <button
+                    className={`${styles.actionCard} group`}
+                    onClick={openMessaging}
                   >
-                    <IonIcon
-                      icon={chatbubbleEllipsesOutline}
-                      className={styles.actionIcon}
-                    />
-                  </div>
-                  <div className={styles.cardContent}>
-                    <h3 className={styles.cardTitle}>Live Chat</h3>
-                    <p className={styles.cardDescription}>
-                      Direkte Hilfe von unserem Support-Team.
-                    </p>
-                  </div>
-                </button>
-              </IonCol>
+                    <div
+                      className={`${styles.iconWrapper} ${styles.secondaryBg}`}
+                    >
+                      <IonIcon
+                        icon={chatbubbleEllipsesOutline}
+                        className={styles.actionIcon}
+                      />
+                    </div>
+                    <div className={styles.cardContent}>
+                      <h3 className={styles.cardTitle}>Live Chat</h3>
+                      <p className={styles.cardDescription}>
+                        Direkte Hilfe von unserem Support-Team.
+                      </p>
+                    </div>
+                  </button>
+                </IonCol>
+              )}
 
               <IonCol size='12'>
                 <button
@@ -179,23 +184,25 @@ const Home: React.FC = () => {
           </IonGrid>
 
           {/* Contact CTA Section */}
-          <section className={styles.contactCtaCard}>
-            <div className={styles.ctaContent}>
-              <h3 className={styles.ctaTitle}>Noch Fragen offen?</h3>
-              <p className={styles.ctaDescription}>
-                Unser technisches Support-Team ist rund um die Uhr für dich da.
-              </p>
-              <IonButton
-                expand='block'
-                className={styles.ctaButton}
-                onClick={openMessaging}
-              >
-                Kontakt aufnehmen
-              </IonButton>
-            </div>
-            <div className={styles.decorativeElement1}></div>
-            <div className={styles.decorativeElement2}></div>
-          </section>
+          {liveChatEnabled && (
+            <section className={styles.contactCtaCard}>
+              <div className={styles.ctaContent}>
+                <h3 className={styles.ctaTitle}>Noch Fragen offen?</h3>
+                <p className={styles.ctaDescription}>
+                  Unser technisches Support-Team ist rund um die Uhr für dich da.
+                </p>
+                <IonButton
+                  expand='block'
+                  className={styles.ctaButton}
+                  onClick={openMessaging}
+                >
+                  Kontakt aufnehmen
+                </IonButton>
+              </div>
+              <div className={styles.decorativeElement1}></div>
+              <div className={styles.decorativeElement2}></div>
+            </section>
+          )}
         </div>
       </IonContent>
 
