@@ -10,7 +10,7 @@ require 'json'
     s.license = package['license']
     s.homepage = 'https://github.com/dsteinel/capacitor-zendesk-classic-sdk'
     s.author = package['author']
-    s.ios.deployment_target  = '15.0'
+    s.ios.deployment_target  = '17.0'
     s.dependency 'Capacitor'
     s.dependency 'ZendeskSupportSDK'
     s.dependency 'ZendeskChatSDK'
