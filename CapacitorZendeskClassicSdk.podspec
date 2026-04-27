@@ -18,5 +18,8 @@ require 'json'
     s.static_framework = true
     s.source = { :git => 'https://github.com/dsteinel/capacitor-zendesk-classic-sdk.git', :tag => s.version.to_s }
     s.source_files = 'ios/CapacitorZendeskSupportSdk/Source/**/*.{swift,h,m}'
+    s.resource_bundles = {
+      'CapacitorZendeskClassicSdk' => ['ios/CapacitorZendeskSupportSdk/Source/**/Resources/**/*.strings']
+    }
     s.swift_version = '5.0'
   end

@@ -20,6 +20,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     private var identityEmail: String? = nil
     private var identityName: String? = nil
     private var primaryColor: Color = Color(red: 0, green: 0.43, blue: 0.145)
+    private var liveChatEnabled: Bool = true
 
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "initialize", returnType: CAPPluginReturnPromise),
@@ -32,7 +33,8 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "createTicket", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "registerPushToken", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "handleNotification", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "getUnreadCount", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "getUnreadCount", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isLiveChatEnabled", returnType: CAPPluginReturnPromise)
     ]
 
     @objc func initialize(_ call: CAPPluginCall) {
@@ -51,6 +53,8 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
                 SupportSDK.Support.initialize(withZendesk: ZendeskCoreSDK.Zendesk.instance)
                 self.sdkInitialized = true
             }
+
+            self.liveChatEnabled = call.getBool("enableLiveChat") ?? true
 
             if let theme = call.getObject("theme") {
                 self.applyTheme(theme)
@@ -82,12 +86,6 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             SupportSDK.Support.instance?.helpCenterLocaleOverride = locale
             call.resolve()
         }
-    }
-
-    private func reapplyIdentity() {
-        guard let name = identityName, let email = identityEmail else { return }
-        let identity = ZendeskCoreSDK.Identity.createAnonymous(name: name, email: email)
-        ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
     }
 
     private func applyTheme(_ theme: [String: Any]) {
@@ -146,7 +144,6 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
     @objc func openTicketList(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
-            self.reapplyIdentity()
             var color = self.primaryColor
             if let hex = call.getString("primaryColor"),
                let uiColor = UIColor(hex: hex) {
@@ -166,7 +163,6 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
     @objc func createTicket(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
-            self.reapplyIdentity()
             let viewController = SupportSDK.RequestUi.buildRequestUi(with: [])
             let navigationController = UINavigationController(rootViewController: viewController)
             self.bridge?.viewController?.present(navigationController, animated: true, completion: nil)
@@ -180,15 +176,10 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             return
         }
 
-        if ZendeskCoreSDK.Zendesk.instance != nil {
-            let isZendesk = (data["source"] as? String) == "zendesk"
-            call.resolve(["isZendeskNotification": isZendesk, "wasHandled": false])
-        } else {
-            // SDK not yet initialised (cold start). Detect by payload key only so
-            // the caller can navigate to the Support page where init will happen.
-            let isZendesk = (data["source"] as? String) == "zendesk"
-            call.resolve(["isZendeskNotification": isZendesk, "wasHandled": false])
-        }
+        // The Classic Support SDK identifies its push notifications by the
+        // presence of "zendesk_sdk_request_id" in the payload (docs: handle_push_notifications_wh).
+        let isZendesk = data["zendesk_sdk_request_id"] != nil
+        call.resolve(["isZendeskNotification": isZendesk, "wasHandled": false])
     }
 
     @objc func getUnreadCount(_ call: CAPPluginCall) {
@@ -202,15 +193,24 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
+    @objc func isLiveChatEnabled(_ call: CAPPluginCall) {
+        call.resolve(["enabled": liveChatEnabled])
+    }
+
     @objc func registerPushToken(_ call: CAPPluginCall) {
         guard let tokenString = call.getString("token") else {
             call.reject("Missing token")
             return
         }
         DispatchQueue.main.async {
-            // Convert hex string (from @capacitor/push-notifications) to Data
+            // Docs require stripping spaces, "<" and ">" before registering
+            // (handle_push_notifications_wh).
+            let cleanedToken = tokenString
+                .replacingOccurrences(of: "<", with: "")
+                .replacingOccurrences(of: ">", with: "")
+                .replacingOccurrences(of: " ", with: "")
             if let zendesk = ZendeskCoreSDK.Zendesk.instance {
-                ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk).register(deviceIdentifier: tokenString, locale: Locale.current.identifier) { _, _ in }
+                ZendeskCoreSDK.ZDKPushProvider(zendesk: zendesk).register(deviceIdentifier: cleanedToken, locale: Locale.current.identifier) { _, _ in }
             }
             call.resolve()
         }

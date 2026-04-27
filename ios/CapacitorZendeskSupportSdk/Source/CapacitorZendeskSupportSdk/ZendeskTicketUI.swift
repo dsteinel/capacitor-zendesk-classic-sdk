@@ -6,6 +6,21 @@ import SupportSDK
 import SupportProvidersSDK
 import CommonUISDK
 
+// Resolves localized strings from the plugin's own resource bundle so the
+// host app's locale (en/de/…) is respected without needing strings in the app target.
+private func zdkL(_ key: String) -> String {
+    #if SWIFT_PACKAGE
+    // SPM generates Bundle.module automatically when resources are declared in Package.swift.
+    let bundle = Bundle.module
+    #else
+    // CocoaPods wraps resources in a named bundle next to the framework.
+    let base = Bundle(for: ZendeskChat.self)
+    let bundle = base.url(forResource: "CapacitorZendeskClassicSdk", withExtension: "bundle")
+        .flatMap { Bundle(url: $0) } ?? base
+    #endif
+    return NSLocalizedString(key, bundle: bundle, comment: "")
+}
+
 // MARK: - Ticket List
 
 struct TicketListView: View {
@@ -43,7 +58,7 @@ struct TicketListView: View {
                         Image(systemName: "tray")
                             .font(.system(size: 40))
                             .foregroundColor(.secondary)
-                        Text("No requests")
+                        Text(zdkL("zdk_ticket_list_empty"))
                             .font(.body)
                             .foregroundColor(.secondary)
                     }
@@ -67,11 +82,11 @@ struct TicketListView: View {
                     .background(Color(.systemBackground))
                 }
             }
-            .navigationTitle("My Requests")
+            .navigationTitle(zdkL("zdk_ticket_list_title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Close", action: onDismiss)
+                    Button(zdkL("zdk_ticket_list_close"), action: onDismiss)
                         .foregroundColor(primaryColor)
                 }
             }
@@ -115,7 +130,7 @@ struct TicketListView: View {
         group.notify(queue: .main) {
             isLoading = false
             if fetchedTickets.isEmpty && fetchedUpdates == nil {
-                errorMessage = "Could not load requests"
+                errorMessage = zdkL("zdk_ticket_list_error")
             } else {
                 tickets = fetchedTickets
                 requestUpdates = fetchedUpdates
@@ -129,15 +144,10 @@ struct TicketRow: View {
     let primaryColor: Color
     let hasUnread: Bool
 
-    private var title: String {
-        // If no agent reply yet, use the subject as title
-        if let subject = ticket.subject, !subject.isEmpty {
-            let hasAgentReply = ticket.commentCount.intValue > 1
-            if !hasAgentReply {
-                return subject
-            }
-        }
-        return ticket.subject ?? ticket.requestDescription ?? "Support request"
+    private var hasAgentReply: Bool { ticket.commentCount.intValue > 1 }
+
+    private var headline: String {
+        ticket.requestDescription ?? ticket.subject ?? zdkL("zdk_ticket_fallback_title")
     }
 
     private var formattedDate: String {
@@ -155,9 +165,9 @@ struct TicketRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .top) {
-                    Text(title)
+                    Text(headline)
                         .font(.body)
-                        .fontWeight(hasUnread ? .semibold : .regular)
+                        .fontWeight(.semibold)
                         .foregroundColor(.primary)
                         .lineLimit(1)
                     Spacer()
@@ -165,7 +175,9 @@ struct TicketRow: View {
                         .font(.caption)
                         .foregroundColor(Color(.tertiaryLabel))
                 }
-                if let last = ticket.lastComment, let body = last.body, !body.isEmpty {
+                if hasAgentReply,
+                   let last = ticket.lastComment,
+                   let body = last.body, !body.isEmpty {
                     Text(body)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -190,8 +202,12 @@ struct StatusBadge: View {
         }
     }
 
+    private var displayStatus: String {
+        status.lowercased() == "new" ? "Open" : status.capitalized
+    }
+
     var body: some View {
-        Text(status.capitalized)
+        Text(displayStatus)
             .font(.caption2)
             .fontWeight(.medium)
             .padding(.horizontal, 6)
@@ -225,6 +241,7 @@ struct TicketDetailView: View {
     @SwiftUI.State private var isSending = false
     @SwiftUI.State private var errorMessage: String? = nil
     @SwiftUI.State private var pendingAttachments: [PendingAttachment] = []
+    @SwiftUI.State private var pollingTimer: Timer? = nil
 
     var body: some View {
         NavigationView {
@@ -258,7 +275,17 @@ struct TicketDetailView: View {
                         }
                         .background(Color(.systemBackground))
                         .onChange(of: comments.count) {
+                            withAnimation {
+                                proxy.scrollTo(comments.count - 1, anchor: .bottom)
+                            }
+                        }
+                        .onAppear {
+                            // Scroll to bottom once the list first renders, then start polling.
                             proxy.scrollTo(comments.count - 1, anchor: .bottom)
+                            startPolling()
+                        }
+                        .onDisappear {
+                            stopPolling()
                         }
                     }
                 }
@@ -272,27 +299,45 @@ struct TicketDetailView: View {
                     onSend: sendReply
                 )
             }
-            .navigationTitle(ticket.subject ?? "Request")
+            .navigationTitle(ticket.subject ?? zdkL("zdk_ticket_detail_fallback_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Back", action: onDismiss)
+                    Button(zdkL("zdk_ticket_detail_back"), action: onDismiss)
                         .foregroundColor(primaryColor)
                 }
             }
         }
-        .onAppear(perform: loadComments)
+        .onAppear {
+            loadComments(scrollToBottom: true)
+        }
+        .onDisappear {
+            stopPolling()
+        }
     }
 
-    private func loadComments() {
+    private func startPolling() {
+        pollingTimer = Timer.scheduledTimer(withTimeInterval: 8, repeats: true) { _ in
+            loadComments()
+        }
+    }
+
+    private func stopPolling() {
+        pollingTimer?.invalidate()
+        pollingTimer = nil
+    }
+
+    // onChange(of: comments.count) on the ScrollView handles scroll-to-bottom
+    // whenever new comments arrive, so no proxy needed here.
+    private func loadComments(scrollToBottom: Bool = false) {
         SupportSDK.ZDKRequestProvider().getCommentsWithRequestId(ticket.requestId) { result, error in
             DispatchQueue.main.async {
                 isLoading = false
-                if let result = result as? [SupportProvidersSDK.ZDKCommentWithUser] {
-                    comments = result.reversed()
-                } else {
-                    errorMessage = "Could not load comments"
+                guard let fetched = result as? [SupportProvidersSDK.ZDKCommentWithUser] else {
+                    if comments.isEmpty { errorMessage = zdkL("zdk_ticket_detail_error") }
+                    return
                 }
+                comments = fetched
             }
         }
     }
@@ -390,7 +435,7 @@ struct CommentRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text(user?.name ?? (isEndUser ? "You" : "Agent"))
+                    Text(user?.name ?? zdkL(isEndUser ? "zdk_comment_you" : "zdk_comment_agent"))
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -430,7 +475,7 @@ struct AttachmentRow: View {
                         Image(systemName: iconForMime(attachment.contentType ?? ""))
                             .font(.system(size: 13))
                             .foregroundColor(.accentColor)
-                        Text(attachment.filename ?? "Attachment")
+                        Text(attachment.filename ?? zdkL("zdk_comment_attachment_fallback"))
                             .font(.footnote)
                             .foregroundColor(.accentColor)
                             .lineLimit(1)
@@ -501,25 +546,25 @@ struct ReplyBar: View {
                 // Paperclip with native iOS context menu
                 Menu {
                     Button(action: { showPhotoPicker = true }) {
-                        Label("Photo Library", systemImage: "photo.on.rectangle")
+                        Label(zdkL("zdk_reply_photo_library"), systemImage: "photo.on.rectangle")
                     }
                     if UIImagePickerController.isSourceTypeAvailable(.camera) {
                         Button(action: { showCamera = true }) {
-                            Label("Camera", systemImage: "camera")
+                            Label(zdkL("zdk_reply_camera"), systemImage: "camera")
                         }
                     }
                     Button(action: { showFilePicker = true }) {
-                        Label("File", systemImage: "doc")
+                        Label(zdkL("zdk_reply_file"), systemImage: "doc")
                     }
                 } label: {
                     Image(systemName: "paperclip")
                         .font(.system(size: 16, weight: .light))
-                        .rotationEffect(.degrees(30))
+                        .rotationEffect(.degrees(-40))
                         .foregroundColor(.secondary)
                         .frame(width: 32, height: 32)
                 }
 
-                TextField("Add a reply…", text: $text, axis: .vertical)
+                TextField(zdkL("zdk_reply_placeholder"), text: $text, axis: .vertical)
                     .font(.body)
                     .lineLimit(1...5)
                     .padding(.horizontal, 12)

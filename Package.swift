@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "CapacitorZendeskClassicSdk",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17)
     ],
@@ -25,7 +26,10 @@ let package = Package(
                 .product(name: "ZendeskSupportSDK", package: "support_sdk_ios"),
                 .product(name: "ZendeskMessagingSDK", package: "messaging_sdk_ios")
             ],
-            path: "ios/CapacitorZendeskSupportSdk/Source/CapacitorZendeskSupportSdk"
+            path: "ios/CapacitorZendeskSupportSdk/Source/CapacitorZendeskSupportSdk",
+            resources: [
+                .process("Resources")
+            ]
         ),
         .target(
             name: "CapacitorZendeskSupportSdkObjc",

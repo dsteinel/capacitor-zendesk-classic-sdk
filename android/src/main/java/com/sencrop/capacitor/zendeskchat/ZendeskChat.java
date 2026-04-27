@@ -26,6 +26,8 @@ import zendesk.classic.messaging.MessagingActivity;
 
 @CapacitorPlugin(name = "ZendeskChat")
 public class ZendeskChat extends Plugin {
+    private String identityEmail = null;
+    private boolean liveChatEnabled = true;
     @PluginMethod()
     public void initialize(PluginCall call) {
         String appId = call.getString("appId");
@@ -50,6 +52,7 @@ public class ZendeskChat extends Plugin {
             setLocale(call);
         }
 
+        liveChatEnabled = Boolean.TRUE.equals(call.getBoolean("enableLiveChat", true));
         call.resolve();
     }
 
@@ -80,12 +83,18 @@ public class ZendeskChat extends Plugin {
         String name = call.getString("name");
         String email = call.getString("email");
 
-        // Identity for Support SDK
+        // Changing anonymous identity wipes all ticket history — skip if email unchanged.
+        if (email != null && email.equals(identityEmail)) {
+            call.resolve();
+            return;
+        }
+
         Zendesk.INSTANCE.setIdentity(new AnonymousIdentity.Builder()
                 .withNameIdentifier(name)
                 .withEmailIdentifier(email)
                 .build());
 
+        identityEmail = email;
         call.resolve();
     }
 
@@ -141,8 +150,9 @@ public class ZendeskChat extends Plugin {
             }
         }
 
-        // Zendesk Classic SDK push notifications always contain source=zendesk.
-        boolean isZendesk = "zendesk".equals(pushData.get("source"));
+        // Classic Support SDK identifies its push notifications by the presence of
+        // "zendesk_sdk_request_id" in the payload (docs: handle_push_notifications_wh).
+        boolean isZendesk = pushData.containsKey("zendesk_sdk_request_id");
         if (isZendesk) {
             RequestListActivity.builder().show(getActivity());
         }
@@ -177,6 +187,13 @@ public class ZendeskChat extends Plugin {
                 }
             }
         );
+    }
+
+    @PluginMethod()
+    public void isLiveChatEnabled(PluginCall call) {
+        JSObject result = new JSObject();
+        result.put("enabled", liveChatEnabled);
+        call.resolve(result);
     }
 
     @PluginMethod()

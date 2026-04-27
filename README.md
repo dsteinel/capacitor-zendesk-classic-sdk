@@ -74,10 +74,10 @@ Call once on app start. Get credentials from Zendesk Admin Center → **Channels
 import { ZendeskChat } from 'capacitor-zendesk-classic-sdk';
 
 await ZendeskChat.initialize({
-  appId: 'YOUR_APP_ID',           // iOS & Android
-  clientId: 'YOUR_CLIENT_ID',     // iOS & Android
+  appId: 'YOUR_APP_ID',
+  clientId: 'YOUR_CLIENT_ID',
   zendeskUrl: 'https://your_domain.zendesk.com',
-  webKey: 'YOUR_WEB_KEY',         // Web only (Zendesk Web Widget key)
+  enableLiveChat: false, // set to false to hide the live chat option in your UI
 });
 ```
 
@@ -116,6 +116,7 @@ If omitted the color from `initialize({ theme: { primaryColor } })` is used as t
 | Method | Description |
 |--------|-------------|
 | `initialize(options)` | Initialize the SDK with credentials |
+| `isLiveChatEnabled()` | Returns `{ enabled: boolean }` — reflects the `enableLiveChat` flag passed to `initialize` |
 | `setVisitorInfo(options)` | Identify the current user |
 | `open(options)` | Open the Unified Messaging UI |
 | `openHelpCenter(options)` | Open the Help Center |

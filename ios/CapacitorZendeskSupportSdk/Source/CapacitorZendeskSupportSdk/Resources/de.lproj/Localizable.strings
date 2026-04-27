@@ -1,0 +1,22 @@
+/* Ticket list */
+"zdk_ticket_list_title" = "Meine Tickets";
+"zdk_ticket_list_empty" = "Keine Anfragen";
+"zdk_ticket_list_error" = "Anfragen konnten nicht geladen werden";
+"zdk_ticket_list_close" = "Schließen";
+
+/* Ticket detail */
+"zdk_ticket_detail_error" = "Kommentare konnten nicht geladen werden";
+"zdk_ticket_detail_back" = "Zurück";
+"zdk_ticket_detail_fallback_title" = "Anfrage";
+
+/* Comment row */
+"zdk_comment_you" = "Du";
+"zdk_comment_agent" = "Support";
+"zdk_comment_attachment_fallback" = "Anhang";
+"zdk_ticket_fallback_title" = "Support-Anfrage";
+
+/* Reply bar */
+"zdk_reply_placeholder" = "Antwort hinzufügen…";
+"zdk_reply_photo_library" = "Fotomediathek";
+"zdk_reply_camera" = "Kamera";
+"zdk_reply_file" = "Datei";
