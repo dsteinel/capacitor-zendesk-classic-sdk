@@ -26,6 +26,9 @@ export declare class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlug
         isZendeskNotification: boolean;
         wasHandled: boolean;
     }>;
+    isLiveChatEnabled(): Promise<{
+        enabled: boolean;
+    }>;
     getUnreadCount(): Promise<{
         count: number;
     }>;

@@ -5,9 +5,9 @@ export class ZendeskChatWeb extends WebPlugin {
             console.warn('Zendesk Web: Already initialized.');
             return;
         }
-        const key = options.webKey || options.appId;
+        const key = options.appId;
         if (!key) {
-            console.error('Zendesk Web: webKey (or appId) is required for initialization.');
+            console.error('Zendesk Web: appId is required for initialization.');
             return;
         }
         if (options.theme) {
@@ -126,6 +126,9 @@ export class ZendeskChatWeb extends WebPlugin {
     async handleNotification(_options) {
         // Push notifications are not applicable on web
         return { isZendeskNotification: false, wasHandled: false };
+    }
+    async isLiveChatEnabled() {
+        return { enabled: true };
     }
     async getUnreadCount() {
         // On web the Zendesk messenger widget manages its own unread count via the
