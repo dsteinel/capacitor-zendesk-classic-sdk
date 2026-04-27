@@ -1,6 +1,6 @@
 {
     "name": "capacitor-zendesk-classic-sdk",
-    "version": "0.1.39",
+    "version": "0.1.40",
     "description": "Zendesk Support SDK plugin for Capacitor",
     "keywords": [
         "capacitor",
