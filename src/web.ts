@@ -15,10 +15,10 @@ export class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlugin {
       return;
     }
 
-    const key = options.webKey || options.appId;
+    const key = options.appId;
 
     if (!key) {
-      console.error('Zendesk Web: webKey (or appId) is required for initialization.');
+      console.error('Zendesk Web: appId is required for initialization.');
       return;
     }
 
@@ -159,6 +159,10 @@ export class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlugin {
   }): Promise<{ isZendeskNotification: boolean; wasHandled: boolean }> {
     // Push notifications are not applicable on web
     return { isZendeskNotification: false, wasHandled: false };
+  }
+
+  async isLiveChatEnabled(): Promise<{ enabled: boolean }> {
+    return { enabled: true };
   }
 
   async getUnreadCount(): Promise<{ count: number }> {

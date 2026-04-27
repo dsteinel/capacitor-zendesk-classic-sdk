@@ -6,23 +6,24 @@ export interface VisitorInfo {
     name?: string;
     email?: string;
     phoneNumber?: string;
-    /** Stable identifier (e.g. app user UUID) that keeps the Zendesk identity
-     *  consistent across sessions so existing tickets remain accessible. */
-    externalId?: string;
 }
 export interface ZendeskTheme {
     primaryColor?: string;
 }
 export interface InitializeOptions {
-    appId?: string;
-    clientId?: string;
+    appId: string;
+    clientId: string;
     zendeskUrl: string;
-    webKey?: string;
     theme?: ZendeskTheme;
     locale?: string;
+    /** Set to false to hide the live chat option in your UI. Defaults to true. */
+    enableLiveChat?: boolean;
 }
 export interface ZendeskChatPlugin {
     initialize(options: InitializeOptions): Promise<void>;
+    isLiveChatEnabled(): Promise<{
+        enabled: boolean;
+    }>;
     setVisitorInfo(visitorInfo: VisitorInfo): Promise<void>;
     setTheme(theme: ZendeskTheme): Promise<void>;
     setLocale(options: {
@@ -30,7 +31,9 @@ export interface ZendeskChatPlugin {
     }): Promise<void>;
     open(config: ChatConfig): Promise<void>;
     openHelpCenter(config: ChatConfig): Promise<void>;
-    openTicketList(): Promise<void>;
+    openTicketList(options?: {
+        primaryColor?: string;
+    }): Promise<void>;
     createTicket(): Promise<void>;
     registerPushToken(options: {
         token: string;
