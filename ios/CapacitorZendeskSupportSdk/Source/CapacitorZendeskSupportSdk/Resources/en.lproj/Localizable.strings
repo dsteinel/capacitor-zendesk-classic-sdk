@@ -1,22 +1,22 @@
 /* Ticket list */
-"zdk_ticket_list_title" = "My Requests";
-"zdk_ticket_list_empty" = "No requests";
-"zdk_ticket_list_error" = "Could not load requests";
+"zdk_ticket_list_title" = "My Tickets";
 "zdk_ticket_list_close" = "Close";
+"zdk_ticket_list_empty" = "No tickets yet";
+"zdk_ticket_list_error" = "Could not load tickets";
+"zdk_ticket_fallback_title" = "Ticket";
 
 /* Ticket detail */
-"zdk_ticket_detail_error" = "Could not load comments";
+"zdk_ticket_detail_fallback_title" = "Ticket";
 "zdk_ticket_detail_back" = "Back";
-"zdk_ticket_detail_fallback_title" = "Request";
+"zdk_ticket_detail_error" = "Could not load comments";
 
-/* Comment row */
+/* Comments */
 "zdk_comment_you" = "You";
-"zdk_comment_agent" = "Agent";
+"zdk_comment_agent" = "Support";
 "zdk_comment_attachment_fallback" = "Attachment";
-"zdk_ticket_fallback_title" = "Support request";
 
 /* Reply bar */
-"zdk_reply_placeholder" = "Add a reply…";
+"zdk_reply_placeholder" = "Write a message…";
 "zdk_reply_photo_library" = "Photo Library";
 "zdk_reply_camera" = "Camera";
 "zdk_reply_file" = "File";

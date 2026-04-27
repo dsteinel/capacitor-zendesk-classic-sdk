@@ -15,8 +15,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/zendesk/support_sdk_ios", exact: "8.0.4"),
-        .package(url: "https://github.com/zendesk/messaging_sdk_ios", from: "6.0.0")
+        .package(url: "https://github.com/zendesk/support_sdk_ios", exact: "9.3.0"),
+        .package(url: "https://github.com/zendesk/messaging_sdk_ios", from: "6.3.0")
     ],
     targets: [
         .target(

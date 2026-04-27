@@ -17,10 +17,20 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "ZendeskChat"
 
     private var sdkInitialized = false
-    private var identityEmail: String? = nil
-    private var identityName: String? = nil
-    private var primaryColor: Color = Color(red: 0, green: 0.43, blue: 0.145)
     private var liveChatEnabled: Bool = true
+    private var primaryColor: Color = Color(red: 0, green: 0.43, blue: 0.145)
+
+    // Persisted across cold starts so setIdentity is never called again for the
+    // same anonymous user — re-calling it generates a new token and breaks
+    // existing ticket session access (comments return 404).
+    private var identityEmail: String? {
+        get { UserDefaults.standard.string(forKey: "zdkIdentityEmail") }
+        set { UserDefaults.standard.set(newValue, forKey: "zdkIdentityEmail") }
+    }
+    private var identityName: String? {
+        get { UserDefaults.standard.string(forKey: "zdkIdentityName") }
+        set { UserDefaults.standard.set(newValue, forKey: "zdkIdentityName") }
+    }
 
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "initialize", returnType: CAPPluginReturnPromise),
