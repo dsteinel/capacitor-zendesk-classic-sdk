@@ -17,6 +17,7 @@
 
 /* Reply bar */
 "zdk_reply_placeholder" = "Write a message…";
+"zdk_reply_send" = "Send";
 "zdk_reply_photo_library" = "Photo Library";
 "zdk_reply_camera" = "Camera";
 "zdk_reply_file" = "File";

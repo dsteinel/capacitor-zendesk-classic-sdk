@@ -589,7 +589,7 @@ struct ReplyBar: View {
                         ProgressView()
                             .frame(width: 16, height: 16)
                     } else {
-                        Text("Send")
+                        Text(zdkL("zdk_reply_send"))
                             .font(.body.bold())
                             .foregroundColor(canSend ? primaryColor : Color(.systemGray3))
                     }
