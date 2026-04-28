@@ -124,6 +124,9 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
             self.identityEmail = email
             self.identityName = name
+            // Prime the SDK transport so ZDKRequestProvider callbacks fire immediately
+            // when the ticket list is opened without requiring a prior Help Center visit.
+            SupportSDK.ZDKRequestProvider().getUpdatesForDevice { _ in }
             call.resolve()
         }
     }
@@ -159,6 +162,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
                let uiColor = UIColor(hex: hex) {
                 color = Color(uiColor)
             }
+
             var hostingVC: UIViewController?
             let view = TicketListView(primaryColor: color, onDismiss: {
                 hostingVC?.dismiss(animated: true)

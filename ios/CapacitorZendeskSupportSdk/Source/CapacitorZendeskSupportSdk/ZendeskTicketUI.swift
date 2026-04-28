@@ -34,61 +34,71 @@ struct TicketListView: View {
     @SwiftUI.State private var selectedTicket: SupportProvidersSDK.ZDKRequest? = nil
 
     var body: some View {
-        NavigationView {
-            Group {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(.systemGroupedBackground))
-                } else if let error = errorMessage {
-                    VStack(spacing: 12) {
-                        Image(systemName: "exclamationmark.circle")
-                            .font(.system(size: 40))
-                            .foregroundColor(.secondary)
-                        Text(error)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemGroupedBackground))
-                } else if tickets.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "tray")
-                            .font(.system(size: 40))
-                            .foregroundColor(.secondary)
-                        Text(zdkL("zdk_ticket_list_empty"))
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemGroupedBackground))
-                } else {
-                    List(tickets, id: \.requestId) { ticket in
-                        Button(action: {
-                            markAsRead(ticket)
-                            selectedTicket = ticket
-                        }) {
-                            TicketRow(
-                                ticket: ticket,
-                                primaryColor: primaryColor,
-                                hasUnread: hasUnread(ticket)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .listStyle(.plain)
-                    .background(Color(.systemBackground))
-                }
+        VStack(spacing: 0) {
+            // Custom nav bar: Close left, nothing right
+            HStack {
+                Button(zdkL("zdk_ticket_list_close"), action: onDismiss)
+                    .foregroundColor(primaryColor)
+                Spacer()
             }
-            .navigationTitle(zdkL("zdk_ticket_list_title"))
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(zdkL("zdk_ticket_list_close"), action: onDismiss)
-                        .foregroundColor(primaryColor)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
+
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let error = errorMessage {
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.circle")
+                        .font(.system(size: 40))
+                        .foregroundColor(.secondary)
+                    Text(error)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List {
+                    // Title row — same leading as ticket rows
+                    Text(zdkL("zdk_ticket_list_title"))
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
+                        .listRowSeparator(.hidden)
+
+                    if tickets.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "tray")
+                                .font(.system(size: 40))
+                                .foregroundColor(.secondary)
+                            Text(zdkL("zdk_ticket_list_empty"))
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
+                        .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(tickets, id: \.requestId) { ticket in
+                            Button(action: {
+                                markAsRead(ticket)
+                                selectedTicket = ticket
+                            }) {
+                                TicketRow(
+                                    ticket: ticket,
+                                    primaryColor: primaryColor,
+                                    hasUnread: hasUnread(ticket)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                .listStyle(.plain)
             }
         }
         .sheet(item: $selectedTicket) { ticket in
@@ -164,7 +174,7 @@ struct TicketRow: View {
                 .frame(width: 8, height: 8)
 
             VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .top) {
+                HStack(alignment: .firstTextBaseline) {
                     Text(headline)
                         .font(.body)
                         .fontWeight(.semibold)
@@ -542,7 +552,7 @@ struct ReplyBar: View {
                     .padding(.top, 8)
             }
 
-            HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
                 // Paperclip with native iOS context menu
                 Menu {
                     Button(action: { showPhotoPicker = true }) {
@@ -558,37 +568,37 @@ struct ReplyBar: View {
                     }
                 } label: {
                     Image(systemName: "paperclip")
-                        .font(.system(size: 16, weight: .light))
-                        .rotationEffect(.degrees(-40))
+                        .font(.system(size: 20, weight: .light))
+                        .rotationEffect(.degrees(-45))
                         .foregroundColor(.secondary)
-                        .frame(width: 32, height: 32)
+                        .frame(width: 36, height: 36)
                 }
+                .frame(width: 36, height: 36)
 
                 TextField(zdkL("zdk_reply_placeholder"), text: $text, axis: .vertical)
                     .font(.body)
                     .lineLimit(1...5)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color(.systemGray6))
+                    .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color(.systemGray4), lineWidth: 1))
 
                 Button(action: onSend) {
                     if isSending {
-                        ProgressView().tint(.white)
+                        ProgressView()
                             .frame(width: 16, height: 16)
                     } else {
-                        Image(systemName: "arrow.up")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.white)
+                        Text("Send")
+                            .font(.body.bold())
+                            .foregroundColor(canSend ? primaryColor : Color(.systemGray3))
                     }
                 }
-                .frame(width: 32, height: 32)
-                .background(canSend && !isSending ? primaryColor : Color(.systemGray3))
-                .clipShape(Circle())
                 .disabled(!canSend || isSending)
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.top, 8)
+            .padding(.bottom, 2)
         }
         .photosPicker(isPresented: $showPhotoPicker, selection: $photoPickerItem, matching: .any(of: [.images, .videos]))
         .onChange(of: photoPickerItem) {
