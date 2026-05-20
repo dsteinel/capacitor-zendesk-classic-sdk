@@ -7,6 +7,8 @@ declare global {
     }
 }
 export declare class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlugin {
+    private jwtEndpointUrl;
+    private isJwtAuthenticated;
     initialize(options: InitializeOptions): Promise<void>;
     setTheme(theme: ZendeskTheme): Promise<void>;
     setLocale(options: {
@@ -33,4 +35,8 @@ export declare class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlug
         count: number;
     }>;
     setVisitorInfo(visitorData: VisitorInfo): Promise<void>;
+    authenticateUser(options: {
+        userToken: string;
+    }): Promise<void>;
+    logoutUser(): Promise<void>;
 }

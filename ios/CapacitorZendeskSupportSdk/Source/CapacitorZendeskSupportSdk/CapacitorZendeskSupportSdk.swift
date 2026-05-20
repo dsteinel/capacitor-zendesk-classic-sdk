@@ -19,6 +19,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     private var sdkInitialized = false
     private var liveChatEnabled: Bool = true
     private var primaryColor: Color = Color(red: 0, green: 0.43, blue: 0.145)
+    private var isJwtAuthenticated = false
 
     // Persisted across cold starts so setIdentity is never called again for the
     // same anonymous user — re-calling it generates a new token and breaks
@@ -44,7 +45,9 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "registerPushToken", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "handleNotification", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getUnreadCount", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "isLiveChatEnabled", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "isLiveChatEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "authenticateUser", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "logoutUser", returnType: CAPPluginReturnPromise)
     ]
 
     @objc func initialize(_ call: CAPPluginCall) {
@@ -108,6 +111,13 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
 
     @objc func setVisitorInfo(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
+            // Never overwrite a JWT identity with an anonymous one — doing so
+            // invalidates the session and breaks access to existing tickets.
+            guard !self.isJwtAuthenticated else {
+                call.resolve()
+                return
+            }
+
             let name = call.getString("name") ?? ""
             let email = call.getString("email") ?? ""
 
@@ -127,6 +137,37 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             // Prime the SDK transport so ZDKRequestProvider callbacks fire immediately
             // when the ticket list is opened without requiring a prior Help Center visit.
             SupportSDK.ZDKRequestProvider().getUpdatesForDevice { _ in }
+            call.resolve()
+        }
+    }
+
+    @objc func authenticateUser(_ call: CAPPluginCall) {
+        guard let userToken = call.getString("userToken") else {
+            call.reject("Missing userToken")
+            return
+        }
+
+        DispatchQueue.main.async {
+            let identity = ZendeskCoreSDK.Identity.createJwt(token: userToken)
+            ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
+            self.isJwtAuthenticated = true
+            // Clear cached anonymous identity so a future logoutUser() + setVisitorInfo()
+            // call will set a fresh anonymous identity rather than being skipped.
+            self.identityEmail = nil
+            self.identityName = nil
+            SupportSDK.ZDKRequestProvider().getUpdatesForDevice { _ in }
+            call.resolve()
+        }
+    }
+
+    @objc func logoutUser(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            self.isJwtAuthenticated = false
+            self.identityEmail = nil
+            self.identityName = nil
+            // Reset to a fresh anonymous identity so the SDK is in a clean state.
+            let identity = ZendeskCoreSDK.Identity.createAnonymous()
+            ZendeskCoreSDK.Zendesk.instance?.setIdentity(identity)
             call.resolve()
         }
     }

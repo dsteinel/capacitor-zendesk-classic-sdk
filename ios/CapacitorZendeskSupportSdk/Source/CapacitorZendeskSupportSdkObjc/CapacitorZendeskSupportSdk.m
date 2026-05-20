@@ -9,4 +9,6 @@ CAP_PLUGIN(ZendeskChat, "ZendeskChat",
            CAP_PLUGIN_METHOD(openHelpCenter, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(openTicketList, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(createTicket, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(authenticateUser, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(logoutUser, CAPPluginReturnPromise);
 )

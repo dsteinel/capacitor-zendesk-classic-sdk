@@ -18,6 +18,15 @@ export interface InitializeOptions {
     locale?: string;
     /** Set to false to hide the live chat option in your UI. Defaults to true. */
     enableLiveChat?: boolean;
+    /**
+     * HTTPS URL of your backend endpoint that exchanges a userToken for a
+     * Zendesk-compatible signed JWT (web only). Required if you call
+     * authenticateUser() on the web platform.
+     *
+     * Your endpoint must accept POST with body `user_token=<value>` and respond
+     * with `{ "jwt": "<hs256-signed-token>" }`.
+     */
+    jwtEndpointUrl?: string;
 }
 export interface ZendeskChatPlugin {
     initialize(options: InitializeOptions): Promise<void>;
@@ -38,6 +47,27 @@ export interface ZendeskChatPlugin {
     registerPushToken(options: {
         token: string;
     }): Promise<void>;
+    /**
+     * Authenticate the current user via Zendesk's JWT identity flow so that
+     * tickets are unified across devices and platforms.
+     *
+     * Pass an opaque `userToken` string that your backend can map to a real
+     * user and use to sign a Zendesk JWT. On mobile the Zendesk SDK calls your
+     * registered JWT endpoint with this token; on web the plugin calls
+     * `jwtEndpointUrl` (set in InitializeOptions) directly.
+     *
+     * Must be called after `initialize()`. Calling it again with a new token
+     * refreshes the identity.
+     */
+    authenticateUser(options: {
+        userToken: string;
+    }): Promise<void>;
+    /**
+     * Sign out the current user and reset to an anonymous Zendesk identity.
+     * Call this when the user logs out of your app so their ticket history is
+     * no longer accessible on the device.
+     */
+    logoutUser(): Promise<void>;
     /**
      * Forward a received push notification payload to the Zendesk SDK.
      *

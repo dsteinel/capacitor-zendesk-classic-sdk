@@ -16,6 +16,7 @@ import com.getcapacitor.JSObject;
 import com.zendesk.service.ErrorResponse;
 import com.zendesk.service.ZendeskCallback;
 import zendesk.core.AnonymousIdentity;
+import zendesk.core.JwtIdentity;
 import zendesk.core.Zendesk;
 import zendesk.support.Support;
 import zendesk.support.guide.HelpCenterActivity;
@@ -28,6 +29,7 @@ import zendesk.classic.messaging.MessagingActivity;
 public class ZendeskChat extends Plugin {
     private String identityEmail = null;
     private boolean liveChatEnabled = true;
+    private boolean isJwtAuthenticated = false;
     @PluginMethod()
     public void initialize(PluginCall call) {
         String appId = call.getString("appId");
@@ -80,6 +82,12 @@ public class ZendeskChat extends Plugin {
 
     @PluginMethod()
     public void setVisitorInfo(PluginCall call) {
+        // Never overwrite a JWT identity with an anonymous one.
+        if (isJwtAuthenticated) {
+            call.resolve();
+            return;
+        }
+
         String name = call.getString("name");
         String email = call.getString("email");
 
@@ -95,6 +103,27 @@ public class ZendeskChat extends Plugin {
                 .build());
 
         identityEmail = email;
+        call.resolve();
+    }
+
+    @PluginMethod()
+    public void authenticateUser(PluginCall call) {
+        String userToken = call.getString("userToken");
+        if (userToken == null) {
+            call.reject("Missing userToken");
+            return;
+        }
+        Zendesk.INSTANCE.setIdentity(new JwtIdentity(userToken));
+        isJwtAuthenticated = true;
+        identityEmail = null;
+        call.resolve();
+    }
+
+    @PluginMethod()
+    public void logoutUser(PluginCall call) {
+        isJwtAuthenticated = false;
+        identityEmail = null;
+        Zendesk.INSTANCE.setIdentity(new AnonymousIdentity.Builder().build());
         call.resolve();
     }
 

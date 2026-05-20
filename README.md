@@ -25,7 +25,7 @@
 
 Capacitor 8 plugin for integrating the **Zendesk Support SDK (Classic/Unified)** into iOS, Android, and Web apps — using Zendesk's native UI components.
 
-**Features:** Help Center · Ticket List · Ticket Creation · Unified Messaging · Push Notifications · Theme & Locale customization
+**Features:** Help Center · Ticket List · Ticket Creation · Unified Messaging · Push Notifications · Theme & Locale customization · JWT Authentication
 
 ## Requirements
 
@@ -77,17 +77,34 @@ await ZendeskChat.initialize({
   appId: 'YOUR_APP_ID',
   clientId: 'YOUR_CLIENT_ID',
   zendeskUrl: 'https://your_domain.zendesk.com',
-  enableLiveChat: false, // set to false to hide the live chat option in your UI
+  enableLiveChat: false,         // set to false to hide the live chat option in your UI
+  jwtEndpointUrl: 'https://your-backend.com/api/zendesk/jwt', // required for web JWT auth
 });
 ```
 
 ### Identify the user
+
+**Anonymous (no login required):**
 
 ```typescript
 await ZendeskChat.setVisitorInfo({
   name: 'Jane Doe',
   email: 'jane@example.com',
 });
+```
+
+**JWT authentication (recommended for logged-in users):**
+
+Authenticates the user via Zendesk's JWT identity flow so ticket history is unified across devices and platforms. See [JWT Authentication](#jwt-authentication) for full setup.
+
+```typescript
+await ZendeskChat.authenticateUser({ userToken: 'opaque-token-from-your-backend' });
+```
+
+On logout, reset to an anonymous identity:
+
+```typescript
+await ZendeskChat.logoutUser();
 ```
 
 ### Open UI components
@@ -117,7 +134,9 @@ If omitted the color from `initialize({ theme: { primaryColor } })` is used as t
 |--------|-------------|
 | `initialize(options)` | Initialize the SDK with credentials |
 | `isLiveChatEnabled()` | Returns `{ enabled: boolean }` — reflects the `enableLiveChat` flag passed to `initialize` |
-| `setVisitorInfo(options)` | Identify the current user |
+| `setVisitorInfo(options)` | Identify an anonymous/guest user by name and email |
+| `authenticateUser(options)` | Authenticate a logged-in user via JWT — unifies ticket history across devices |
+| `logoutUser()` | Sign out and reset to an anonymous identity |
 | `open(options)` | Open the Unified Messaging UI |
 | `openHelpCenter(options)` | Open the Help Center |
 | `openTicketList(options?)` | Open the user's ticket list (iOS: optional `primaryColor` override) |
@@ -151,6 +170,75 @@ await ZendeskChat.setLocale({ locale: 'en-US' });
 Place `help_center_article_style.css` in:
 - **Android**: `src/main/assets/`
 - **iOS**: app root, added to Xcode's **Copy Bundle Resources** build phase
+
+---
+
+## JWT Authentication
+
+JWT auth unifies a user's ticket history across all devices and platforms (iOS, Android, web). Without it each platform gets its own anonymous identity and tickets are siloed.
+
+### How it works
+
+The plugin passes an opaque `userToken` to the Zendesk SDK. Zendesk's servers call your backend with that token to obtain a signed JWT — your backend never exposes the secret to the client.
+
+```
+Mobile/Web app         Zendesk              Your backend
+──────────────         ───────              ────────────
+authenticateUser()
+  userToken ─────────► POST /your-endpoint
+                          user_token=...  ──► validate token
+                                         ◄── { "jwt": "..." }
+                       validate JWT ✓
+```
+
+> **Web** is slightly different: the plugin itself calls your endpoint (via `jwtEndpointUrl`) and passes the JWT to the widget. The flow is equivalent from the caller's perspective.
+
+### Backend requirements
+
+Your endpoint must:
+- Accept `POST` with body `user_token=<value>` (`application/x-www-form-urlencoded`)
+- Return `200 OK` with `{ "jwt": "<signed-token>" }`
+- Sign the JWT with **HMAC-SHA256 (HS256)** using the secret from Admin Center
+- Include these four claims (lowercase keys):
+
+| Claim | Type | Description |
+|-------|------|-------------|
+| `name` | string | User's display name |
+| `email` | string | User's email address |
+| `jti` | string | Unique UUID per request (prevents replay) |
+| `iat` | number | Issued-at in Unix seconds |
+
+The JWT secret is found in **Admin Center → Channels → Classic → Mobile SDK** — not the SSO JWT secret.
+
+### Admin Center configuration
+
+1. Go to **Admin Center → Channels → Classic → Mobile SDK**
+2. Set authentication method to **JWT**
+3. Set the **JWT URL** to your backend endpoint
+4. Copy the full JWT secret (it is only shown once — regenerate if lost)
+
+### Plugin setup
+
+```typescript
+// 1. Pass jwtEndpointUrl during initialize() — required for web JWT auth
+await ZendeskChat.initialize({
+  appId: 'YOUR_APP_ID',
+  clientId: 'YOUR_CLIENT_ID',
+  zendeskUrl: 'https://your_domain.zendesk.com',
+  jwtEndpointUrl: 'https://your-backend.com/api/zendesk/jwt', // web only
+});
+
+// 2. After your own login flow, call authenticateUser() with a token
+//    your backend issues for the current user
+await ZendeskChat.authenticateUser({ userToken: 'token-from-your-auth-system' });
+
+// 3. On logout
+await ZendeskChat.logoutUser();
+```
+
+> `setVisitorInfo()` is automatically skipped after `authenticateUser()` to prevent the anonymous identity from overwriting the JWT session.
+
+> The JWT signing secret must **never** be passed through the plugin or stored in the client app.
 
 ---
 

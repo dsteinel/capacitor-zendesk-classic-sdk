@@ -9,6 +9,9 @@ declare global {
 }
 
 export class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlugin {
+  private jwtEndpointUrl: string | undefined;
+  private isJwtAuthenticated = false;
+
   async initialize(options: InitializeOptions): Promise<void> {
     if (window.zE) {
       console.warn('Zendesk Web: Already initialized.');
@@ -21,6 +24,8 @@ export class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlugin {
       console.error('Zendesk Web: appId is required for initialization.');
       return;
     }
+
+    this.jwtEndpointUrl = options.jwtEndpointUrl;
 
     if (options.theme) {
       await this.setTheme(options.theme);
@@ -177,6 +182,12 @@ export class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlugin {
       return;
     }
 
+    // Skip anonymous prefill when JWT auth is active — the JWT payload is the
+    // source of truth and calling identify() here would override it.
+    if (this.isJwtAuthenticated) {
+      return;
+    }
+
     window.zE('webWidget', 'identify', {
       name: visitorData.name,
       email: visitorData.email,
@@ -197,5 +208,52 @@ export class ZendeskChatWeb extends WebPlugin implements ZendeskChatPlugin {
         readOnly: true
       }
     });
+  }
+
+  async authenticateUser(options: { userToken: string }): Promise<void> {
+    if (!this.jwtEndpointUrl) {
+      console.error('Zendesk Web: jwtEndpointUrl is required for JWT auth. Pass it in initialize().');
+      return;
+    }
+
+    const endpointUrl = this.jwtEndpointUrl;
+
+    // jwtFn is called by the widget whenever it needs a fresh token.
+    // The callback receives a function to call with the signed JWT string.
+    const jwtFn = (callback: (jwt: string) => void) => {
+      fetch(endpointUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `user_token=${encodeURIComponent(options.userToken)}`,
+      })
+        .then(res => {
+          if (!res.ok) throw new Error(`JWT endpoint returned ${res.status}`);
+          return res.json();
+        })
+        .then((body: { jwt: string }) => callback(body.jwt))
+        .catch(err => console.error('Zendesk Web: JWT fetch failed', err));
+    };
+
+    window.zESettings = {
+      ...window.zESettings,
+      webWidget: {
+        ...window.zESettings?.webWidget,
+        authenticate: { jwtFn },
+      },
+    };
+
+    if (window.zE) {
+      window.zE('webWidget', 'updateSettings', window.zESettings);
+    }
+
+    this.isJwtAuthenticated = true;
+  }
+
+  async logoutUser(): Promise<void> {
+    this.isJwtAuthenticated = false;
+
+    if (window.zE) {
+      window.zE('webWidget', 'logout');
+    }
   }
 }

@@ -38,12 +38,24 @@ const Home: React.FC = () => {
             primaryColor: import.meta.env.VITE_ZENDESK_PRIMARY_COLOR,
           },
           enableLiveChat: false,
+          // Required for web JWT auth — your backend endpoint that returns a signed JWT.
+          jwtEndpointUrl: import.meta.env.VITE_ZENDESK_JWT_ENDPOINT_URL,
         })
 
-        await ZendeskChat.setVisitorInfo({
-          name: 'John Doe',
-          email: 'john@example.com',
-        })
+        // If the user is authenticated in your app, call authenticateUser() instead
+        // of setVisitorInfo() so tickets are unified across devices and platforms.
+        // Replace the userToken below with a token your backend issues for the
+        // current user (e.g. a short-lived opaque session token or hashed user ID).
+        const userToken = import.meta.env.VITE_ZENDESK_USER_TOKEN
+        if (userToken) {
+          await ZendeskChat.authenticateUser({ userToken })
+        } else {
+          // Fallback: anonymous identity for unauthenticated / guest users.
+          await ZendeskChat.setVisitorInfo({
+            name: 'John Doe',
+            email: 'john@example.com',
+          })
+        }
 
         const { enabled } = await ZendeskChat.isLiveChatEnabled()
         setLiveChatEnabled(enabled)

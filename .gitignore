@@ -63,3 +63,6 @@ fastlane/test_output/
 *.p12
 google-services.json
 GoogleService-Info.plist
+
+# Claude
+CLAUDE.md
