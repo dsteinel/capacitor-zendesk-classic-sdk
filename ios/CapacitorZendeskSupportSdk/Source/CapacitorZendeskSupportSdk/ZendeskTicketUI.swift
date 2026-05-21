@@ -122,10 +122,18 @@ struct TicketListView: View {
         let group = DispatchGroup()
         var fetchedTickets: [ZDKRequest] = []
         var fetchedUpdates: RequestUpdates?
+        var fetchError: Error? = nil
 
         group.enter()
-        SupportSDK.ZDKRequestProvider().getAllRequests { result, _ in
-            if let result = result as? SupportProvidersSDK.ZDKRequestsWithCommentingAgents {
+        SupportSDK.ZDKRequestProvider().getAllRequests { result, error in
+            if let error = error {
+                print("[Zendesk] getAllRequests failed: \(error)")
+                if let e = error as? NSError {
+                    print("[Zendesk] getAllRequests error domain=\(e.domain) code=\(e.code) userInfo=\(e.userInfo)")
+                }
+                fetchError = error
+            } else if let result = result as? SupportProvidersSDK.ZDKRequestsWithCommentingAgents {
+                print("[Zendesk] getAllRequests returned \(result.requests.count) tickets")
                 fetchedTickets = result.requests
             }
             group.leave()
@@ -139,7 +147,7 @@ struct TicketListView: View {
 
         group.notify(queue: .main) {
             isLoading = false
-            if fetchedTickets.isEmpty && fetchedUpdates == nil {
+            if fetchError != nil || (fetchedTickets.isEmpty && fetchedUpdates == nil) {
                 errorMessage = zdkL("zdk_ticket_list_error")
             } else {
                 tickets = fetchedTickets
@@ -365,7 +373,12 @@ struct TicketDetailView: View {
             ) { _, error in
                 DispatchQueue.main.async {
                     isSending = false
-                    if error == nil {
+                    if let error = error {
+                        print("[Zendesk] addComment failed: \(error)")
+                        if let zdkError = error as? NSError {
+                            print("[Zendesk] addComment error domain=\(zdkError.domain) code=\(zdkError.code) userInfo=\(zdkError.userInfo)")
+                        }
+                    } else {
                         replyText = ""
                         pendingAttachments = []
                         loadComments()

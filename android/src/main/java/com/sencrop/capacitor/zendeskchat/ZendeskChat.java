@@ -167,7 +167,10 @@ public class ZendeskChat extends Plugin {
 
     @PluginMethod()
     public void openHelpCenter(PluginCall call) {
+        // withContactUsButtonVisible(false) prevents the SDK from showing a
+        // "Contact Us" button that navigates to the ticket list inside Help Center.
         HelpCenterActivity.builder()
+                .withContactUsButtonVisible(false)
                 .show(getActivity());
         call.resolve();
     }

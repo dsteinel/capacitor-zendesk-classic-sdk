@@ -190,6 +190,9 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     @objc func openHelpCenter(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
             let helpCenterUiConfig = SupportSDK.HelpCenterUiConfiguration()
+            // Hide the "Contact Us" button so tapping an article doesn't navigate
+            // to the ticket list instead of staying in the Help Center.
+            helpCenterUiConfig.hideContactSupport = true
             let viewController = SupportSDK.HelpCenterUi.buildHelpCenterOverviewUi(withConfigs: [helpCenterUiConfig])
             let navigationController = UINavigationController(rootViewController: viewController)
             self.bridge?.viewController?.present(navigationController, animated: true, completion: nil)
