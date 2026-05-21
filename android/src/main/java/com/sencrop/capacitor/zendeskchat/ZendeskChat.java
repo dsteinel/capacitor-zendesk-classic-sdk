@@ -64,6 +64,18 @@ public class ZendeskChat extends Plugin {
             Zendesk.INSTANCE.init(context, zendeskUrl, appId, clientId);
             Support.INSTANCE.init(Zendesk.INSTANCE);
             sdkInitialized = true;
+
+            // Re-apply the persisted identity now that the SDK is ready.
+            // load() runs before initialize() so any setIdentity calls in
+            // logoutUser() that fired before this point were no-ops.
+            if (isJwtAuthenticated) {
+                // JWT will be set by the subsequent authenticateUser() call from JS.
+                // Nothing to do here — just don't set an anonymous identity over it.
+            } else if (identityEmail != null) {
+                Zendesk.INSTANCE.setIdentity(new AnonymousIdentity.Builder()
+                        .withEmailIdentifier(identityEmail)
+                        .build());
+            }
         }
 
         if (call.hasOption("theme")) {
@@ -153,7 +165,11 @@ public class ZendeskChat extends Plugin {
             .putBoolean(KEY_JWT_AUTHENTICATED, false)
             .remove(KEY_IDENTITY_EMAIL)
             .apply();
-        Zendesk.INSTANCE.setIdentity(new AnonymousIdentity.Builder().build());
+        // Guard: setIdentity is a no-op if the SDK hasn't been initialized yet
+        // (e.g. logoutUser called from JS catch block before initialize() completes).
+        if (sdkInitialized) {
+            Zendesk.INSTANCE.setIdentity(new AnonymousIdentity.Builder().build());
+        }
         call.resolve();
     }
 

@@ -192,7 +192,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
             let helpCenterUiConfig = SupportSDK.HelpCenterUiConfiguration()
             // Hide the "Contact Us" button so tapping an article doesn't navigate
             // to the ticket list instead of staying in the Help Center.
-            helpCenterUiConfig.hideContactSupport = true
+            helpCenterUiConfig.showContactOptions = false
             let viewController = SupportSDK.HelpCenterUi.buildHelpCenterOverviewUi(withConfigs: [helpCenterUiConfig])
             let navigationController = UINavigationController(rootViewController: viewController)
             self.bridge?.viewController?.present(navigationController, animated: true, completion: nil)
@@ -242,7 +242,7 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func getUnreadCount(_ call: CAPPluginCall) {
-        guard let zendesk = ZendeskCoreSDK.Zendesk.instance else {
+        guard ZendeskCoreSDK.Zendesk.instance != nil else {
             call.resolve(["count": 0])
             return
         }
