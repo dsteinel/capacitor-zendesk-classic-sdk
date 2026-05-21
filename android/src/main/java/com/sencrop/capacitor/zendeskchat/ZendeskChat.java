@@ -1,6 +1,7 @@
 package com.sencrop.capacitor.zendeskchat;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -27,9 +28,26 @@ import zendesk.classic.messaging.MessagingActivity;
 
 @CapacitorPlugin(name = "ZendeskChat")
 public class ZendeskChat extends Plugin {
+    private static final String PREFS_NAME = "ZendeskChatPlugin";
+    private static final String KEY_IDENTITY_EMAIL = "identityEmail";
+    private static final String KEY_JWT_AUTHENTICATED = "isJwtAuthenticated";
+
     private String identityEmail = null;
     private boolean liveChatEnabled = true;
     private boolean isJwtAuthenticated = false;
+    private boolean sdkInitialized = false;
+
+    private SharedPreferences prefs() {
+        return getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public void load() {
+        SharedPreferences p = prefs();
+        identityEmail = p.getString(KEY_IDENTITY_EMAIL, null);
+        isJwtAuthenticated = p.getBoolean(KEY_JWT_AUTHENTICATED, false);
+    }
+
     @PluginMethod()
     public void initialize(PluginCall call) {
         String appId = call.getString("appId");
@@ -41,9 +59,12 @@ public class ZendeskChat extends Plugin {
             return;
         }
 
-        Context context = getContext();
-        Zendesk.INSTANCE.init(context, zendeskUrl, appId, clientId);
-        Support.INSTANCE.init(Zendesk.INSTANCE);
+        if (!sdkInitialized) {
+            Context context = getContext();
+            Zendesk.INSTANCE.init(context, zendeskUrl, appId, clientId);
+            Support.INSTANCE.init(Zendesk.INSTANCE);
+            sdkInitialized = true;
+        }
 
         if (call.hasOption("theme")) {
             // Theme customization is handled in setTheme
@@ -103,6 +124,7 @@ public class ZendeskChat extends Plugin {
                 .build());
 
         identityEmail = email;
+        prefs().edit().putString(KEY_IDENTITY_EMAIL, email).apply();
         call.resolve();
     }
 
@@ -116,6 +138,10 @@ public class ZendeskChat extends Plugin {
         Zendesk.INSTANCE.setIdentity(new JwtIdentity(userToken));
         isJwtAuthenticated = true;
         identityEmail = null;
+        prefs().edit()
+            .putBoolean(KEY_JWT_AUTHENTICATED, true)
+            .remove(KEY_IDENTITY_EMAIL)
+            .apply();
         call.resolve();
     }
 
@@ -123,6 +149,10 @@ public class ZendeskChat extends Plugin {
     public void logoutUser(PluginCall call) {
         isJwtAuthenticated = false;
         identityEmail = null;
+        prefs().edit()
+            .putBoolean(KEY_JWT_AUTHENTICATED, false)
+            .remove(KEY_IDENTITY_EMAIL)
+            .apply();
         Zendesk.INSTANCE.setIdentity(new AnonymousIdentity.Builder().build());
         call.resolve();
     }

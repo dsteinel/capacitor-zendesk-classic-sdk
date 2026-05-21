@@ -19,11 +19,12 @@ public class ZendeskChat: CAPPlugin, CAPBridgedPlugin {
     private var sdkInitialized = false
     private var liveChatEnabled: Bool = true
     private var primaryColor: Color = Color(red: 0, green: 0.43, blue: 0.145)
-    private var isJwtAuthenticated = false
 
-    // Persisted across cold starts so setIdentity is never called again for the
-    // same anonymous user — re-calling it generates a new token and breaks
-    // existing ticket session access (comments return 404).
+    // Persisted across cold starts so identity state survives force-quit and relaunch.
+    private var isJwtAuthenticated: Bool {
+        get { UserDefaults.standard.bool(forKey: "zdkIsJwtAuthenticated") }
+        set { UserDefaults.standard.set(newValue, forKey: "zdkIsJwtAuthenticated") }
+    }
     private var identityEmail: String? {
         get { UserDefaults.standard.string(forKey: "zdkIdentityEmail") }
         set { UserDefaults.standard.set(newValue, forKey: "zdkIdentityEmail") }
